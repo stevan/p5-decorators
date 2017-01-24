@@ -6,6 +6,7 @@ use warnings;
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
+use Scalar::Util           ();
 use MOP                    ();
 use attributes             (); # this is where we store the annotations
 use B::CompilerPhase::Hook (); # multi-phase programming
@@ -17,11 +18,26 @@ our %ANNOTATION_MAP;   # mapping of CODE address to Annotations
 
 ## ...
 
-sub add_annotation_provider {
-    my ($meta, $provider) = @_;
+sub import {
+    shift;
+    my $pkg = caller;
+    setup_package( $pkg, @_ );
+}
+
+## ...
+
+sub setup_package {
+    my ($pkg, @providers) = @_;
+    my $meta = Scalar::Util::blessed( $pkg ) ? $pkg : MOP::Class->new( $pkg );
+    add_annotation_providers( $meta, @providers );
+    schedule_annotation_collector( $meta )
+}
+
+sub add_annotation_providers {
+    my ($meta, @providers) = @_;
     #warn "Hey there, got $provider";
     $PROVIDERS_BY_PKG{ $meta->name } = [] unless $PROVIDERS_BY_PKG{ $meta->name };
-    push @{ $PROVIDERS_BY_PKG{ $meta->name } } => $provider;
+    push @{ $PROVIDERS_BY_PKG{ $meta->name } } => @providers;
 }
 
 sub schedule_annotation_collector {
@@ -68,7 +84,7 @@ sub schedule_annotation_collector {
                 #use Data::Dumper;
                 #warn "ATTRS: " . Dumper \@attrs;
 
-                my $annotations = parse_annotations( $pkg, \@attrs );
+                my $annotations = parse_annotations( @attrs );
 
                 #warn "ANNOTATIONS: " . Dumper $annotations;
 
@@ -81,8 +97,9 @@ sub schedule_annotation_collector {
                 # we do not handle
                 return map $_->[2], @$unhandled if @$unhandled;
 
+                my $klass  = MOP::Class->new( $pkg );
                 my $method = MOP::Method->new( $code );
-                apply_all_annotations( $pkg, $method->name, $annotations );
+                apply_all_annotations( $klass, $method->name, $annotations );
 
                 _store_annotations( $meta, $method, $annotations );
 
@@ -94,7 +111,7 @@ sub schedule_annotation_collector {
 }
 
 sub parse_annotations {
-    my ($pkg, $attrs) = @_;
+    my @attrs = @_;
 
     # First lets parse the traits, currently
     # we are not terribly sophisticated, but
@@ -120,7 +137,7 @@ sub parse_annotations {
             else {
                 die 'Unable to parse annotation (' . $_ . ')';
             }
-        } @$attrs
+        } @attrs
     ];
 }
 
@@ -145,7 +162,7 @@ sub find_unhandled_annotations {
 }
 
 sub apply_all_annotations {
-    my ($pkg, $method_name, $annotations) = @_;
+    my ($meta, $method_name, $annotations) = @_;
 
     # now we need to loop through the traits
     # that we parsed and apply the annotation function
@@ -153,10 +170,10 @@ sub apply_all_annotations {
 
     foreach my $annotation ( @$annotations ) {
         my ($anno, $args) = @$annotation;
-        foreach my $provider ( @{ $PROVIDERS_BY_PKG{ $pkg } } ) {
+        foreach my $provider ( @{ $PROVIDERS_BY_PKG{ $meta->name } } ) {
             if ( my $m = $provider->can( $anno ) ) {
                 #warn "Found a provider for $anno in $provider";
-                $m->( $pkg, $method_name, @$args );
+                $m->( $meta, $method_name, @$args );
                 last;
             }
         }

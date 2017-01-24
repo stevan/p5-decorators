@@ -82,11 +82,7 @@ BEGIN {
 	use MOP;
 	use UNIVERSAL::Object;
 
-	BEGIN {
-		my $meta = MOP::Class->new(__PACKAGE__);
-		CODE::Annotation::add_annotation_provider( $meta, 'JSONinator::Annotation::Provider' );
-		CODE::Annotation::schedule_annotation_collector( $meta )
-	}
+	use CODE::Annotation qw[ JSONinator::Annotation::Provider ];
 
 	our @ISA; BEGIN { @ISA = ('UNIVERSAL::Object') }
 	our %HAS; BEGIN {
@@ -109,16 +105,22 @@ BEGIN {
 	}
 }
 
-my $JSON = JSONinator->new( JSON::MaybeXS->new->pretty->canonical );
+my $JSON = JSONinator->new( JSON::MaybeXS->new->canonical );
 
 my $p = Person->new( first_name => 'Bob', last_name => 'Smith' );
-warn Dumper $p;
+isa_ok($p, 'Person');
+
+is($p->first_name, 'Bob', '... got the expected first_name');
+is($p->last_name, 'Smith', '... got the expected last_name');
 
 my $json = $JSON->collapse( $p );
-warn $json;
+is($json, q[{"first_name":"Bob","last_name":"Smith"}], '... got the JSON we expected');
 
 my $obj = $JSON->expand( Person => $json );
-warn Dumper $obj;
+isa_ok($obj, 'Person');
+
+is($obj->first_name, 'Bob', '... got the expected first_name');
+is($obj->last_name, 'Smith', '... got the expected last_name');
 
 done_testing;
 
