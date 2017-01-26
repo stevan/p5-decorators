@@ -1,4 +1,5 @@
 package Method::Annotation;
+# ABSTRACT: Annotate your methods
 
 use strict;
 use warnings;
@@ -196,7 +197,7 @@ sub apply_all_annotations {
     foreach my $annotation ( @$annotations ) {
         my (undef, $args, undef, $anno) = @$annotation;
         $anno->body->( $meta, $method_name, @$args );
-        if ( $anno->has_code_attributes('Destructive') ) {
+        if ( $anno->has_code_attributes('OverwritesMethod') ) {
             $method = $meta->get_method( $method_name );
             die sprintf "Failed to find method %s in class %s" => $method_name, $meta->name
                 unless defined $method;

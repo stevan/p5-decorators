@@ -70,9 +70,7 @@ BEGIN {
 	use strict;
 	use warnings;
 
-	use Method::Annotation 'Provider';
-
-	sub JSONProperty : Marker { () }
+	sub JSONProperty { () }
 }
 
 BEGIN {

@@ -1,4 +1,5 @@
 package Method::Annotation::Meta::Provider;
+# ABSTRACT: Annotations for Annotations
 
 use strict;
 use warnings;
@@ -6,8 +7,7 @@ use warnings;
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
-sub Destructive { () }
-sub Marker      { () }
+sub OverwritesMethod { () }
 
 1;
 
@@ -17,18 +17,10 @@ __END__
 
 =head1 Annotations
 
-=head2 Destructive
+=head2 OverwritesMethod
 
-This means that the annotation handler has done something to the
-method itself, exactly what is not relevant, only that it changed
-something. This could be anything from replacing the underlying
-method itself with a new one, or just simply performing some kind
-of side-effectual action.
-
-=head2 Marker
-
-This means that the annotation handler will not do anything to the
-method, instead this is mean to be a metadata marker that can
-be read back at a later time.
+This means that the annotation handler will overwrite the
+method with another copy. This means we need to re-fetch
+the method before we run additional annotations.
 
 =cut
