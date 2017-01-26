@@ -199,7 +199,7 @@ sub apply_all_annotations {
         $anno->body->( $meta, $method_name, @$args );
         if ( $anno->has_code_attributes('OverwritesMethod') ) {
             $method = $meta->get_method( $method_name );
-            die sprintf "Failed to find method %s in class %s" => $method_name, $meta->name
+            die 'Failed to find new overwriten method ('.$method_name.') in class ('.$meta->name.')'
                 unless defined $method;
         }
     }
