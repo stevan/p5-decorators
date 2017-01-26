@@ -10,6 +10,7 @@ use Scalar::Util           ();
 use MOP                    ();
 use attributes             (); # this is where we store the annotations
 use B::CompilerPhase::Hook (); # multi-phase programming
+use Module::Runtime        (); # annotation provider loading
 
 ## ...
 
@@ -20,23 +21,42 @@ our %ANNOTATION_MAP;   # mapping of CODE address to Annotations
 
 sub import {
     shift;
-    my $pkg = caller;
-    setup_package( $pkg, @_ );
+    return unless @_;
+
+    my @args = @_;
+    if ( scalar(@args) == 1 && $args[0] eq 'Provider' ) {
+        # expand this to make it easier for providers
+        $args[0] = 'CODE::Annotation::Meta::Provider';
+    }
+
+    import_into( scalar caller, @args );
 }
 
-## ...
-
-sub setup_package {
+sub import_into {
     my ($pkg, @providers) = @_;
     my $meta = Scalar::Util::blessed( $pkg ) ? $pkg : MOP::Class->new( $pkg );
     add_annotation_providers( $meta, @providers );
     schedule_annotation_collector( $meta )
 }
 
+## ...
+
 sub add_annotation_providers {
     my ($meta, @providers) = @_;
-    #warn "Hey there, got $provider";
-    $PROVIDERS_BY_PKG{ $meta->name } = [] unless $PROVIDERS_BY_PKG{ $meta->name };
+
+    # It does not make any sense to create
+    # something that is meant to run in the
+    # BEGIN phase *after* that phase is done
+    # so catch this and error ...
+    die 'Annotation collection must be scheduled during BEGIN time, not (' . ${^GLOBAL_PHASE}. ')'
+        unless ${^GLOBAL_PHASE} eq 'START';
+
+    Module::Runtime::use_package_optimistically( $_ )
+        foreach @providers;
+
+    $PROVIDERS_BY_PKG{ $meta->name } = []
+        unless $PROVIDERS_BY_PKG{ $meta->name };
+
     push @{ $PROVIDERS_BY_PKG{ $meta->name } } => @providers;
 }
 
@@ -81,15 +101,13 @@ sub schedule_annotation_collector {
             MODIFY_CODE_ATTRIBUTES => sub {
                 my ($pkg, $code, @attrs) = @_;
 
-                #use Data::Dumper;
-                #warn "ATTRS: " . Dumper \@attrs;
-
                 my $annotations = parse_annotations( @attrs );
-
-                #warn "ANNOTATIONS: " . Dumper $annotations;
-
                 my $unhandled   = find_unhandled_annotations( $pkg, $annotations );
 
+                #use Data::Dumper;
+                #warn "WE ARE IN $pkg for $code with " . join ', ' => @attrs;
+                #warn "ATTRS: " . Dumper \@attrs;
+                #warn "ANNOTATIONS: " . Dumper $annotations;
                 #warn "UNHANDLED: " . Dumper $unhandled;
 
                 # bad annotations are bad,
@@ -97,11 +115,14 @@ sub schedule_annotation_collector {
                 # we do not handle
                 return map $_->[2], @$unhandled if @$unhandled;
 
-                my $klass  = MOP::Class->new( $pkg );
-                my $method = MOP::Method->new( $code );
-                apply_all_annotations( $klass, $method->name, $annotations );
+                my $method = apply_all_annotations(
+                    MOP::Class->new( $pkg ),
+                    MOP::Method->new( $code ),
+                    $annotations
+                );
 
-                _store_annotations( $meta, $method, $annotations );
+                # store the annotations we applied ...
+                $ANNOTATION_MAP{ $method->body } = [ map $_->[2], @$annotations ];
 
                 # all is well, so let the world know that ...
                 return;
@@ -151,7 +172,9 @@ sub find_unhandled_annotations {
         grep {
             my $stop;
             foreach my $provider ( @{ $PROVIDERS_BY_PKG{ $pkg } } ) {
-                if ( $provider->can( $_->[0] ) ) {
+                #warn "PROVIDER: $provider looking for: " . $_->[0];
+                if ( my $anno = $provider->can( $_->[0] ) ) {
+                    $_->[3] = MOP::Method->new( $anno );
                     $stop++;
                     last;
                 }
@@ -162,49 +185,26 @@ sub find_unhandled_annotations {
 }
 
 sub apply_all_annotations {
-    my ($meta, $method_name, $annotations) = @_;
+    my ($meta, $method, $annotations) = @_;
 
     # now we need to loop through the traits
     # that we parsed and apply the annotation function
     # to our method accordingly
 
+    my $method_name = $method->name;
+
     foreach my $annotation ( @$annotations ) {
-        my ($anno, $args) = @$annotation;
-        foreach my $provider ( @{ $PROVIDERS_BY_PKG{ $meta->name } } ) {
-            if ( my $m = $provider->can( $anno ) ) {
-                #warn "Found a provider for $anno in $provider";
-                $m->( $meta, $method_name, @$args );
-                last;
-            }
+        my (undef, $args, undef, $anno) = @$annotation;
+        $anno->body->( $meta, $method_name, @$args );
+        if ( $anno->has_code_attributes('Destructive') ) {
+            $method = $meta->get_method( $method_name );
+            die sprintf "Failed to find method %s in class %s" => $method_name, $meta->name
+                unless defined $method;
         }
     }
+
+    return $method;
 }
-
-## private utility methods
-
-sub _store_annotations {
-    my ( $meta, $method, $annotations ) = @_;
-    # next we need to fetch the latest version
-    # of the method installed in the stash, or
-    # if that cannot be found, use the original
-    # one, and we then need to store the info
-    # about the traits so it can be retrieved
-    # via attributes::get
-
-    if ( my $generated = $meta->get_method( $method->name ) || $method ) {
-
-        #use Data::Dumper;
-        #warn Dumper [ $generated->name, $annotations ];
-
-        # NOTE:
-        # we store what we were originally given
-        # if we want that re-parsed, use the
-        # parse function above to get that.
-        # - SL
-        $ANNOTATION_MAP{ $generated->body } = [ map $_->[2], @$annotations ];
-    }
-}
-
 
 1;
 
