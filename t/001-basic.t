@@ -7,7 +7,7 @@ use Test::More;
 use Data::Dumper;
 
 BEGIN {
-	use_ok('CODE::Annotation');
+	use_ok('Method::Annotation');
 }
 
 BEGIN {
@@ -70,7 +70,7 @@ BEGIN {
 	use strict;
 	use warnings;
 
-	use CODE::Annotation 'Provider';
+	use Method::Annotation 'Provider';
 
 	sub JSONProperty : Marker { () }
 }
@@ -84,7 +84,7 @@ BEGIN {
 	use MOP;
 	use UNIVERSAL::Object;
 
-	use CODE::Annotation qw[ JSONinator::Annotation::Provider ];
+	use Method::Annotation qw[ JSONinator::Annotation::Provider ];
 
 	our @ISA; BEGIN { @ISA = ('UNIVERSAL::Object') }
 	our %HAS; BEGIN {

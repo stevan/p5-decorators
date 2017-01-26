@@ -6,7 +6,7 @@ use warnings;
 use Test::More;
 
 BEGIN {
-	use_ok('CODE::Annotation');
+	use_ok('Method::Annotation');
 }
 
 done_testing;

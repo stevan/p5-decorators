@@ -1,4 +1,4 @@
-package CODE::Annotation::Meta::Provider;
+package Method::Annotation::Meta::Provider;
 
 use strict;
 use warnings;
