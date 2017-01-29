@@ -100,7 +100,8 @@ sub schedule_annotation_collector {
             FETCH_CODE_ATTRIBUTES => sub {
                 my ($pkg, $code) = @_;
                 return unless exists $ANNOTATION_MAP{ $code };
-                return @{ $ANNOTATION_MAP{ $code } };
+                # return just the strings, as expected by attributes ...
+                return map $_->[2], @{ $ANNOTATION_MAP{ $code } };
             }
         );
         $meta->alias_method(
@@ -128,7 +129,7 @@ sub schedule_annotation_collector {
                 );
 
                 # store the annotations we applied ...
-                $ANNOTATION_MAP{ $method->body } = [ map $_->[2], @$annotations ];
+                $ANNOTATION_MAP{ $method->body } = $annotations;
 
                 # all is well, so let the world know that ...
                 return;
