@@ -61,6 +61,11 @@ sub add_annotation_providers {
     push @{ $PROVIDERS_BY_PKG{ $meta->name } } => @providers;
 }
 
+sub get_annotation_providers {
+    my ($meta) = @_;
+    return @{ $PROVIDERS_BY_PKG{ $meta->name } };
+}
+
 sub schedule_annotation_collector {
     my ($meta) = @_;
 
