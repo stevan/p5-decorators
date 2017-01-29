@@ -44,11 +44,13 @@ This test
 
     sub foo : Bar { 'FOO' }
     sub bar : Baz { 'BAR' }
+
+    sub gorch : Bar Baz { 'GORCH' }
 }
 
 BEGIN {
-    is($Bar::Annotation::Provider::ANNOTATION_USED, 1, '...the annotation was used in BEGIN');
-    is($Baz::Annotation::Provider::ANNOTATION_USED, 1, '...the annotation was used in BEGIN');
+    is($Bar::Annotation::Provider::ANNOTATION_USED, 2, '...the annotation was used in BEGIN');
+    is($Baz::Annotation::Provider::ANNOTATION_USED, 2, '...the annotation was used in BEGIN');
 }
 
 {
@@ -57,9 +59,11 @@ BEGIN {
 
     can_ok($foo, 'foo');
     can_ok($foo, 'bar');
+    can_ok($foo, 'gorch');
 
     is($foo->foo, 'FOO', '... the method worked as expected');
     is($foo->bar, 'BAR', '... the method worked as expected');
+    is($foo->gorch, 'GORCH', '... the method worked as expected');
 }
 
 {
@@ -78,6 +82,16 @@ BEGIN {
     is_deeply(
         [ $method->get_code_attributes ],
         [qw[ Baz ]],
+        '... got the expected attributes'
+    );
+}
+
+{
+    my $method = MOP::Class->new( 'Foo' )->get_method('gorch');
+    isa_ok($method, 'MOP::Method');
+    is_deeply(
+        [ $method->get_code_attributes ],
+        [qw[ Bar Baz ]],
         '... got the expected attributes'
     );
 }
