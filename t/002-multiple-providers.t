@@ -12,7 +12,9 @@ BEGIN {
 
 =pod
 
-This test
+This is a simple test using multiple providers
+and done as two different `use` calls to make
+sure the mechanism can do that.
 
 =cut
 

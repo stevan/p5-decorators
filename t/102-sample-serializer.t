@@ -10,6 +10,16 @@ BEGIN {
 	use_ok('Method::Annotation');
 }
 
+=pod
+
+This is an example of being able to
+take no action and tag methods for
+later use. In this case, we look
+for the specific property and then
+act upon it.
+
+=cut
+
 BEGIN {
 	package JSONinator;
 	use strict;
