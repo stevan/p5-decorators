@@ -19,6 +19,53 @@ our %HAS; BEGIN {
     )
 }
 
+sub BUILDARGS {
+    my $class = shift;
+
+    if ( scalar(@_) == 1 && not ref $_[0] ) {
+        my $original = shift;
+
+        # we are not terribly sophisticated, but
+        # we accept `foo` calls (no-parens) and
+        # we accept `foo(1, 2, 3)` calls (parens
+        # with comma seperated args).
+
+        # NOTE:
+        # None of the args are eval-ed and they are
+        # basically just a list of strings.
+
+
+        if ( $original =~ m/^([a-zA-Z_]*)\((.*)\)$/ ) {
+            #warn "parsed paren/args form for ($_)";
+            return +{
+                original => $original,
+                name     => $1,
+                args     => [
+                    map {
+                        my $arg = $_;
+                        $arg =~ s/^\'//;
+                        $arg =~ s/\'$//;
+                        $arg;
+                    } split /\,\s?/ => $2
+                ]
+            };
+        }
+        elsif ( $original =~ m/^([a-zA-Z_]*)$/ ) {
+            #warn "parsed no-parens form for ($_)";
+            return +{
+                original => $original,
+                name     => $1,
+            };
+        }
+        else {
+            die 'Unable to parse annotation (' . $original . ')';
+        }
+
+    } else {
+        $class->SUPER::BUILDARGS( @_ );
+    }
+}
+
 sub original { $_[0]->{original} }
 
 sub name { $_[0]->{name} }

@@ -112,7 +112,7 @@ sub schedule_annotation_collector {
             MODIFY_CODE_ATTRIBUTES => sub {
                 my ($pkg, $code, @attrs) = @_;
 
-                my $annotations = parse_annotations( @attrs );
+                my $annotations = map Method::Annotations::Annotation->new( $_ ), @attrs;
                 my $unhandled   = find_unhandled_annotations( $pkg, $annotations );
 
                 #use Data::Dumper;
@@ -146,51 +146,6 @@ sub schedule_annotation_collector {
             }
         );
     };
-}
-
-sub parse_annotations {
-    my @attrs = @_;
-
-    # First lets parse the traits, currently
-    # we are not terribly sophisticated, but
-    # we accept `foo` calls (no-parens) and
-    # we accept `foo(1, 2, 3)` calls (parens
-    # with comma seperated args).
-
-    # NOTE:
-    # None of the args are eval-ed and they are
-    # basically just a list of strings.
-
-    return [
-        map {
-            #warn "Trying to parse ($_)";
-            if ( m/^([a-zA-Z_]*)\((.*)\)$/ ) {
-                #warn "parsed paren/args form for ($_)";
-                Method::Annotations::Annotation->new(
-                    original => "$_",
-                    name     => $1,
-                    args     => [
-                        map {
-                            my $arg = $_;
-                            $arg =~ s/^\'//;
-                            $arg =~ s/\'$//;
-                            $arg;
-                        } split /\,\s?/ => $2
-                    ]
-                );
-            }
-            elsif ( m/^([a-zA-Z_]*)$/ ) {
-                #warn "parsed no-parens form for ($_)";
-                Method::Annotations::Annotation->new(
-                    original => "$_",
-                    name     => $1,
-                );
-            }
-            else {
-                die 'Unable to parse annotation (' . $_ . ')';
-            }
-        } @attrs
-    ];
 }
 
 sub find_unhandled_annotations {
