@@ -9,7 +9,7 @@ use Test::More;
 use Data::Dumper;
 
 BEGIN {
-	use_ok('Method::Annotation');
+	use_ok('Method::Annotations');
 	# load from t/lib
 	use_ok('Jaxsun::Provider');
 	use_ok('Jaxsun::Handler');
@@ -35,7 +35,7 @@ BEGIN {
 	use MOP;
 	use UNIVERSAL::Object;
 
-	use Method::Annotation qw[ Jaxsun::Provider ];
+	use Method::Annotations qw[ Jaxsun::Provider ];
 
 	our @ISA; BEGIN { @ISA = ('UNIVERSAL::Object') }
 	our %HAS; BEGIN {

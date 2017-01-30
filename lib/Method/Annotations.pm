@@ -1,4 +1,4 @@
-package Method::Annotation;
+package Method::Annotations;
 # ABSTRACT: Annotate your methods
 
 use strict;
@@ -27,7 +27,7 @@ sub import {
     my @args = @_;
     if ( scalar(@args) == 1 && $args[0] eq ':for_providers' ) {
         # expand this to make it easier for providers
-        $args[0] = 'Method::Annotation::Meta::Provider';
+        $args[0] = 'Method::Annotations::Meta::Provider';
     }
 
     import_into( scalar caller, @args );

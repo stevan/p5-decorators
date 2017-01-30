@@ -29,7 +29,7 @@ This is a simple test using a single provider ...
     use strict;
     use warnings;
 
-    use Method::Annotation 'Bar::Annotation::Provider';
+    use Method::Annotations 'Bar::Annotation::Provider';
 
     sub new { bless +{} => $_[0] }
 

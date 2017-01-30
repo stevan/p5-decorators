@@ -9,7 +9,7 @@ use Test::More;
 use Data::Dumper;
 
 BEGIN {
-    use_ok('Method::Annotation');
+    use_ok('Method::Annotations');
     # load from t/lib
     use_ok('Getopt::Provider');
     use_ok('Getopt::Handler');
@@ -27,7 +27,7 @@ BEGIN {
     use strict;
     use warnings;
 
-    use Method::Annotation qw[
+    use Method::Annotations qw[
         Getopt::Provider
         Accessor::Provider
     ];

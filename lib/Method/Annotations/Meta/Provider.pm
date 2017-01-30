@@ -1,4 +1,4 @@
-package Method::Annotation::Meta::Provider;
+package Method::Annotations::Meta::Provider;
 # ABSTRACT: Annotations for Annotations
 
 use strict;

@@ -39,8 +39,8 @@ sure the mechanism can do that.
     use strict;
     use warnings;
 
-    use Method::Annotation 'Bar::Annotation::Provider';
-    use Method::Annotation 'Baz::Annotation::Provider';
+    use Method::Annotations 'Bar::Annotation::Provider';
+    use Method::Annotations 'Baz::Annotation::Provider';
 
     sub new { bless +{} => $_[0] }
 

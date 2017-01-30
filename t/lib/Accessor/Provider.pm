@@ -3,7 +3,7 @@ package # hide from PAUSE ...
 use strict;
 use warnings;
 
-use Method::Annotation ':for_providers';
+use Method::Annotations ':for_providers';
 
 sub Accessor : OverwritesMethod {
     my ($meta, $method_name, $type, $slot_name) = @_;

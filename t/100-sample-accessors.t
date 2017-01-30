@@ -9,7 +9,7 @@ use Test::More;
 use Data::Dumper;
 
 BEGIN {
-    use_ok('Method::Annotation');
+    use_ok('Method::Annotations');
     # load from t/lib
     use_ok('Accessor::Provider');
 }
@@ -31,7 +31,7 @@ BEGIN {
     use MOP;
     use UNIVERSAL::Object;
 
-    use Method::Annotation qw[ Accessor::Provider ];
+    use Method::Annotations qw[ Accessor::Provider ];
 
     our @ISA; BEGIN { @ISA = ('UNIVERSAL::Object') }
     our %HAS; BEGIN {
