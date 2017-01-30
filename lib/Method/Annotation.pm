@@ -122,6 +122,12 @@ sub schedule_annotation_collector {
                 # we do not handle
                 return map $_->[2], @$unhandled if @$unhandled;
 
+                # NOTE:
+                # ponder the idea of moving this
+                # call to UNITCHECK phase, not sure
+                # if that actually makes sense or not
+                # so it will need to be explored.
+                # - SL
                 my $method = apply_all_annotations(
                     MOP::Class->new( $pkg ),
                     MOP::Method->new( $code ),
