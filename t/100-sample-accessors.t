@@ -23,7 +23,7 @@ BEGIN {
     use strict;
     use warnings;
 
-    use Method::Annotaton ':for_providers';
+    use Method::Annotation ':for_providers';
 
     sub Accessor : OverwritesMethod {
         my ($meta, $method_name, $type, $slot_name) = @_;
