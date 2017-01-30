@@ -3,11 +3,15 @@
 use strict;
 use warnings;
 
+use lib 't/lib';
+
 use Test::More;
 use Data::Dumper;
 
 BEGIN {
     use_ok('Method::Annotation');
+    # load from t/lib
+    use_ok('Accessor::Provider');
 }
 
 =pod
@@ -17,30 +21,6 @@ that will immediately build accessors
 and overwrite the method.
 
 =cut
-
-BEGIN {
-    package Accessor::Provider;
-    use strict;
-    use warnings;
-
-    use Method::Annotation ':for_providers';
-
-    sub Accessor : OverwritesMethod {
-        my ($meta, $method_name, $type, $slot_name) = @_;
-
-        $meta->add_method( $method_name => sub {
-            die 'ro accessor' if $_[1];
-            $_[0]->{$slot_name};
-        })
-            if $type eq 'ro';
-
-        $meta->add_method( $method_name => sub {
-            $_[0]->{$slot_name} = $_[1] if $_[1];
-            $_[0]->{$slot_name};
-        })
-            if $type eq 'rw';
-    }
-}
 
 BEGIN {
     package Person;

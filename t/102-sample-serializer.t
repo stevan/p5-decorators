@@ -3,11 +3,17 @@
 use strict;
 use warnings;
 
+use lib 't/lib';
+
 use Test::More;
 use Data::Dumper;
 
 BEGIN {
 	use_ok('Method::Annotation');
+	# load from t/lib
+	use_ok('Jaxsun::Provider');
+	use_ok('Jaxsun::Handler');
+	use_ok('Accessor::Provider');
 }
 
 =pod
@@ -21,69 +27,6 @@ act upon it.
 =cut
 
 BEGIN {
-	package JSONinator;
-	use strict;
-	use warnings;
-
-	use MOP;
-	use JSON::MaybeXS;
-	use Data::Dumper;
-
-	sub new {
-		my ($class, $JSON) = @_;
-		bless {
-			JSON => $JSON // JSON::MaybeXS->new,
-		} => $class;
-	}
-
-	sub collapse {
-		my $self    = shift;
-		my $object  = shift;
-		my $klass   = MOP::Class->new( ref $object );
-		my @methods = grep {
-			!($_->is_required)
-				&&
-			$_->has_code_attributes('JSONProperty')
-		} $klass->all_methods;
-
-		my %data;
-		foreach my $m ( @methods ) {
-			my $name = $m->name;
-			$data{ $name } = $object->$name();
-		}
-
-		return $self->{JSON}->encode( \%data );
-	}
-
-	sub expand {
-		my $self    = shift;
-		my $klass   = MOP::Class->new( shift );
-		my $json    = $self->{JSON}->decode( shift );
-		my @methods = grep {
-			!($_->is_required)
-				&&
-			$_->has_code_attributes('JSONProperty')
-		} $klass->all_methods;
-
-		my $object = $klass->name->new;
-		foreach my $m ( @methods ) {
-			my $name = $m->name;
-			$object->$name( $json->{ $name } );
-		}
-
-		return $object;
-	}
-}
-
-BEGIN {
-	package JSONinator::Annotation::Provider;
-	use strict;
-	use warnings;
-
-	sub JSONProperty { () }
-}
-
-BEGIN {
 	package Person;
 
 	use strict;
@@ -92,7 +35,7 @@ BEGIN {
 	use MOP;
 	use UNIVERSAL::Object;
 
-	use Method::Annotation qw[ JSONinator::Annotation::Provider ];
+	use Method::Annotation qw[ Jaxsun::Provider ];
 
 	our @ISA; BEGIN { @ISA = ('UNIVERSAL::Object') }
 	our %HAS; BEGIN {
@@ -115,7 +58,7 @@ BEGIN {
 	}
 }
 
-my $JSON = JSONinator->new( JSON::MaybeXS->new->canonical );
+my $JAX = Jaxsun::Handler->new( JSON::MaybeXS->new->canonical );
 
 my $p = Person->new( first_name => 'Bob', last_name => 'Smith' );
 isa_ok($p, 'Person');
@@ -123,10 +66,10 @@ isa_ok($p, 'Person');
 is($p->first_name, 'Bob', '... got the expected first_name');
 is($p->last_name, 'Smith', '... got the expected last_name');
 
-my $json = $JSON->collapse( $p );
+my $json = $JAX->collapse( $p );
 is($json, q[{"first_name":"Bob","last_name":"Smith"}], '... got the JSON we expected');
 
-my $obj = $JSON->expand( Person => $json );
+my $obj = $JAX->expand( Person => $json );
 isa_ok($obj, 'Person');
 
 is($obj->first_name, 'Bob', '... got the expected first_name');
