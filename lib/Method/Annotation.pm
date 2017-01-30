@@ -156,7 +156,14 @@ sub parse_annotations {
             #warn "Trying to parse ($_)";
             if ( m/^([a-zA-Z_]*)\((.*)\)$/ ) {
                 #warn "parsed paren/args form for ($_)";
-                [ $1, [ map /^['"](.*)['"]$/, split /\,\s?/ => $2 ], $_ ]
+                [ $1, [
+                    map {
+                        my $arg = $_;
+                        $arg =~ s/^\'//;
+                        $arg =~ s/\'$//;
+                        $arg;
+                    } split /\,\s?/ => $2
+                ], $_ ]
             }
             elsif ( m/^([a-zA-Z_]*)$/ ) {
                 #warn "parsed no-parens form for ($_)";
