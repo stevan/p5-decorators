@@ -15,6 +15,10 @@ use Module::Runtime        (); # annotation provider loading
 
 ## ...
 
+use Method::Annotations::Annotation;
+
+## ...
+
 our %PROVIDERS_BY_PKG; # this hold the set of available annotations per package
 our %ANNOTATION_MAP;   # mapping of CODE address to Annotations
 
@@ -101,7 +105,7 @@ sub schedule_annotation_collector {
                 my ($pkg, $code) = @_;
                 return unless exists $ANNOTATION_MAP{ $code };
                 # return just the strings, as expected by attributes ...
-                return map $_->[2], @{ $ANNOTATION_MAP{ $code } };
+                return map $_->original, @{ $ANNOTATION_MAP{ $code } };
             }
         );
         $meta->alias_method(
@@ -120,7 +124,7 @@ sub schedule_annotation_collector {
                 # bad annotations are bad,
                 # return the originals that
                 # we do not handle
-                return map $_->[2], @$unhandled if @$unhandled;
+                return map $_->original, @$unhandled if @$unhandled;
 
                 # NOTE:
                 # ponder the idea of moving this
@@ -162,18 +166,25 @@ sub parse_annotations {
             #warn "Trying to parse ($_)";
             if ( m/^([a-zA-Z_]*)\((.*)\)$/ ) {
                 #warn "parsed paren/args form for ($_)";
-                [ $1, [
-                    map {
-                        my $arg = $_;
-                        $arg =~ s/^\'//;
-                        $arg =~ s/\'$//;
-                        $arg;
-                    } split /\,\s?/ => $2
-                ], $_ ]
+                Method::Annotations::Annotation->new(
+                    original => "$_",
+                    name     => $1,
+                    args     => [
+                        map {
+                            my $arg = $_;
+                            $arg =~ s/^\'//;
+                            $arg =~ s/\'$//;
+                            $arg;
+                        } split /\,\s?/ => $2
+                    ]
+                );
             }
             elsif ( m/^([a-zA-Z_]*)$/ ) {
                 #warn "parsed no-parens form for ($_)";
-                [ $1, [], $_ ]
+                Method::Annotations::Annotation->new(
+                    original => "$_",
+                    name     => $1,
+                );
             }
             else {
                 die 'Unable to parse annotation (' . $_ . ')';
@@ -193,8 +204,8 @@ sub find_unhandled_annotations {
             my $stop;
             foreach my $provider ( @{ $PROVIDERS_BY_PKG{ $pkg } } ) {
                 #warn "PROVIDER: $provider looking for: " . $_->[0];
-                if ( my $anno = $provider->can( $_->[0] ) ) {
-                    $_->[3] = MOP::Method->new( $anno );
+                if ( my $anno = $provider->can( $_->name ) ) {
+                    $_->handler( MOP::Method->new( $anno ) );
                     $stop++;
                     last;
                 }
@@ -214,7 +225,7 @@ sub apply_all_annotations {
     my $method_name = $method->name;
 
     foreach my $annotation ( @$annotations ) {
-        my (undef, $args, undef, $anno) = @$annotation;
+        my ($args, $anno) = ($annotation->args, $annotation->handler);
         $anno->body->( $meta, $method_name, @$args );
         if ( $anno->has_code_attributes('OverwritesMethod') ) {
             $method = $meta->get_method( $method_name );
