@@ -25,7 +25,7 @@ sub import {
     return unless @_;
 
     my @args = @_;
-    if ( scalar(@args) == 1 && $args[0] eq 'Provider' ) {
+    if ( scalar(@args) == 1 && $args[0] eq ':for_providers' ) {
         # expand this to make it easier for providers
         $args[0] = 'Method::Annotation::Meta::Provider';
     }
