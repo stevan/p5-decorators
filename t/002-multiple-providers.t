@@ -23,17 +23,17 @@ sure the mechanism can do that.
     use strict;
     use warnings;
 
-    our $ANNOTATION_USED = 0;
+    our $TRAIT_USED = 0;
 
-    sub Bar { $ANNOTATION_USED++; return }
+    sub Bar { $TRAIT_USED++; return }
 
     package Baz::Trait::Provider;
     use strict;
     use warnings;
 
-    our $ANNOTATION_USED = 0;
+    our $TRAIT_USED = 0;
 
-    sub Baz { $ANNOTATION_USED++; return }
+    sub Baz { $TRAIT_USED++; return }
 
     package Foo;
     use strict;
@@ -51,8 +51,8 @@ sure the mechanism can do that.
 }
 
 BEGIN {
-    is($Bar::Trait::Provider::ANNOTATION_USED, 2, '...the annotation was used in BEGIN');
-    is($Baz::Trait::Provider::ANNOTATION_USED, 2, '...the annotation was used in BEGIN');
+    is($Bar::Trait::Provider::TRAIT_USED, 2, '...the annotation was used in BEGIN');
+    is($Baz::Trait::Provider::TRAIT_USED, 2, '...the annotation was used in BEGIN');
 }
 
 {

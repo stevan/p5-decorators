@@ -21,9 +21,9 @@ This is a simple test using a single provider ...
     use strict;
     use warnings;
 
-    our $ANNOTATION_USED = 0;
+    our $TRAIT_USED = 0;
 
-    sub Bar { $ANNOTATION_USED++; return }
+    sub Bar { $TRAIT_USED++; return }
 
     package Foo;
     use strict;
@@ -37,7 +37,7 @@ This is a simple test using a single provider ...
 }
 
 BEGIN {
-    is($Bar::Trait::Provider::ANNOTATION_USED, 1, '...the annotation was used in BEGIN');
+    is($Bar::Trait::Provider::TRAIT_USED, 1, '...the annotation was used in BEGIN');
 }
 
 {

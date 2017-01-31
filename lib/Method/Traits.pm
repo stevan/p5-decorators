@@ -115,7 +115,7 @@ sub schedule_trait_collection {
                 #use Data::Dumper;
                 #warn "WE ARE IN $pkg for $code with " . join ', ' => @attrs;
                 #warn "ATTRS: " . Dumper \@attrs;
-                #warn "ANNOTATIONS: " . Dumper $traits;
+                #warn "TRAITS: " . Dumper \@traits;
                 #warn "UNHANDLED: " . Dumper $unhandled;
 
                 # bad annotations are bad,
