@@ -9,9 +9,9 @@ use Test::More;
 use Data::Dumper;
 
 BEGIN {
-    use_ok('Method::Annotations');
+    use_ok('Method::Traits');
     # load from t/lib
-    use_ok('Accessor::Provider');
+    use_ok('Accessor::Trait::Provider');
 }
 
 =pod
@@ -31,7 +31,7 @@ BEGIN {
     use MOP;
     use UNIVERSAL::Object;
 
-    use Method::Annotations qw[ Accessor::Provider ];
+    use Method::Traits qw[ Accessor::Trait::Provider ];
 
     our @ISA; BEGIN { @ISA = ('UNIVERSAL::Object') }
     our %HAS; BEGIN {

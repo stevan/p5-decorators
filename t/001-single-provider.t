@@ -17,7 +17,7 @@ This is a simple test using a single provider ...
 =cut
 
 {
-    package Bar::Annotation::Provider;
+    package Bar::Trait::Provider;
     use strict;
     use warnings;
 
@@ -29,7 +29,7 @@ This is a simple test using a single provider ...
     use strict;
     use warnings;
 
-    use Method::Annotations 'Bar::Annotation::Provider';
+    use Method::Traits 'Bar::Trait::Provider';
 
     sub new { bless +{} => $_[0] }
 
@@ -37,7 +37,7 @@ This is a simple test using a single provider ...
 }
 
 BEGIN {
-    is($Bar::Annotation::Provider::ANNOTATION_USED, 1, '...the annotation was used in BEGIN');
+    is($Bar::Trait::Provider::ANNOTATION_USED, 1, '...the annotation was used in BEGIN');
 }
 
 {

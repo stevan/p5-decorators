@@ -9,11 +9,11 @@ use Test::More;
 use Data::Dumper;
 
 BEGIN {
-    use_ok('Method::Annotations');
+    use_ok('Method::Traits');
     # load from t/lib
-    use_ok('Getopt::Provider');
-    use_ok('Getopt::Handler');
-    use_ok('Accessor::Provider');
+    use_ok('Getopt::Trait::Provider');
+    use_ok('Getopt::Trait::Handler');
+    use_ok('Accessor::Trait::Provider');
 }
 
 =pod
@@ -27,9 +27,9 @@ BEGIN {
     use strict;
     use warnings;
 
-    use Method::Annotations qw[
-        Getopt::Provider
-        Accessor::Provider
+    use Method::Traits qw[
+        Getopt::Trait::Provider
+        Accessor::Trait::Provider
     ];
 
     our @ISA; BEGIN { @ISA = ('UNIVERSAL::Object') }
@@ -47,7 +47,7 @@ BEGIN {
 
     sub new_from_options {
         my $class = shift;
-        my %args  = Getopt::Handler::get_options( $class );
+        my %args  = Getopt::Trait::Handler::get_options( $class );
 
         #use Data::Dumper;
         #warn Dumper \%args;

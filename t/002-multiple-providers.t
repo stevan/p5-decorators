@@ -19,7 +19,7 @@ sure the mechanism can do that.
 =cut
 
 {
-    package Bar::Annotation::Provider;
+    package Bar::Trait::Provider;
     use strict;
     use warnings;
 
@@ -27,7 +27,7 @@ sure the mechanism can do that.
 
     sub Bar { $ANNOTATION_USED++; return }
 
-    package Baz::Annotation::Provider;
+    package Baz::Trait::Provider;
     use strict;
     use warnings;
 
@@ -39,8 +39,8 @@ sure the mechanism can do that.
     use strict;
     use warnings;
 
-    use Method::Annotations 'Bar::Annotation::Provider';
-    use Method::Annotations 'Baz::Annotation::Provider';
+    use Method::Traits 'Bar::Trait::Provider';
+    use Method::Traits 'Baz::Trait::Provider';
 
     sub new { bless +{} => $_[0] }
 
@@ -51,8 +51,8 @@ sure the mechanism can do that.
 }
 
 BEGIN {
-    is($Bar::Annotation::Provider::ANNOTATION_USED, 2, '...the annotation was used in BEGIN');
-    is($Baz::Annotation::Provider::ANNOTATION_USED, 2, '...the annotation was used in BEGIN');
+    is($Bar::Trait::Provider::ANNOTATION_USED, 2, '...the annotation was used in BEGIN');
+    is($Baz::Trait::Provider::ANNOTATION_USED, 2, '...the annotation was used in BEGIN');
 }
 
 {

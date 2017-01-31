@@ -9,11 +9,10 @@ use Test::More;
 use Data::Dumper;
 
 BEGIN {
-	use_ok('Method::Annotations');
+	use_ok('Method::Traits');
 	# load from t/lib
-	use_ok('Jaxsun::Provider');
-	use_ok('Jaxsun::Handler');
-	use_ok('Accessor::Provider');
+	use_ok('Jaxsun::Trait::Provider');
+	use_ok('Jaxsun::Trait::Handler');
 }
 
 =pod
@@ -35,7 +34,7 @@ BEGIN {
 	use MOP;
 	use UNIVERSAL::Object;
 
-	use Method::Annotations qw[ Jaxsun::Provider ];
+	use Method::Traits qw[ Jaxsun::Trait::Provider ];
 
 	our @ISA; BEGIN { @ISA = ('UNIVERSAL::Object') }
 	our %HAS; BEGIN {
@@ -58,7 +57,7 @@ BEGIN {
 	}
 }
 
-my $JAX = Jaxsun::Handler->new( JSON::MaybeXS->new->canonical );
+my $JAX = Jaxsun::Trait::Handler->new( JSON::MaybeXS->new->canonical );
 
 my $p = Person->new( first_name => 'Bob', last_name => 'Smith' );
 isa_ok($p, 'Person');
