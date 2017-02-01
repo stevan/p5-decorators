@@ -51,8 +51,8 @@ sure the mechanism can do that.
 }
 
 BEGIN {
-    is($Bar::Trait::Provider::TRAIT_USED, 2, '...the annotation was used in BEGIN');
-    is($Baz::Trait::Provider::TRAIT_USED, 2, '...the annotation was used in BEGIN');
+    is($Bar::Trait::Provider::TRAIT_USED, 2, '...the trait was used in BEGIN');
+    is($Baz::Trait::Provider::TRAIT_USED, 2, '...the trait was used in BEGIN');
 }
 
 {

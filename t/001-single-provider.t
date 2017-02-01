@@ -37,7 +37,7 @@ This is a simple test using a single provider ...
 }
 
 BEGIN {
-    is($Bar::Trait::Provider::TRAIT_USED, 1, '...the annotation was used in BEGIN');
+    is($Bar::Trait::Provider::TRAIT_USED, 1, '...the trait was used in BEGIN');
 }
 
 {

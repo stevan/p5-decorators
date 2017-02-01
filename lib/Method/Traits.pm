@@ -9,9 +9,9 @@ our $AUTHORITY = 'cpan:STEVAN';
 
 use Scalar::Util           ();
 use MOP                    ();
-use attributes             (); # this is where we store the annotations
+use attributes             (); # this is where we store the traits
 use B::CompilerPhase::Hook (); # multi-phase programming
-use Module::Runtime        (); # annotation provider loading
+use Module::Runtime        (); # trait provider loading
 
 ## ...
 
@@ -19,7 +19,7 @@ use Method::Traits::Trait;
 
 ## ...
 
-our %PROVIDERS_BY_PKG; # this hold the set of available annotations per package
+our %PROVIDERS_BY_PKG; # this hold the set of available traits per package
 our %TRAIT_BY_CODE;    # mapping of CODE address to Trait
 
 ## ...
@@ -118,7 +118,7 @@ sub schedule_trait_collection {
                 #warn "TRAITS: " . Dumper \@traits;
                 #warn "UNHANDLED: " . Dumper $unhandled;
 
-                # bad annotations are bad,
+                # bad traits are bad,
                 # return the originals that
                 # we do not handle
                 return map $_->original, @$unhandled if @$unhandled;
@@ -135,7 +135,7 @@ sub schedule_trait_collection {
                     \@traits
                 );
 
-                # store the annotations we applied ...
+                # store the traits we applied ...
                 $TRAIT_BY_CODE{ $method->body } = \@traits;
 
                 # all is well, so let the world know that ...
@@ -148,7 +148,7 @@ sub schedule_trait_collection {
 sub find_unhandled_traits {
     my ($pkg, $traits) = @_;
 
-    # Now loop through the annotations and look to
+    # Now loop through the traits and look to
     # see if we have any ones we cannot handle
     # and collect them for later ...
     return [
@@ -168,16 +168,16 @@ sub find_unhandled_traits {
 }
 
 sub apply_all_trait_handlers {
-    my ($meta, $method, $annotations) = @_;
+    my ($meta, $method, $traits) = @_;
 
     # now we need to loop through the traits
-    # that we parsed and apply the annotation function
+    # that we parsed and apply the trait function
     # to our method accordingly
 
     my $method_name = $method->name;
 
-    foreach my $annotation ( @$annotations ) {
-        my ($args, $anno) = ($annotation->args, $annotation->handler);
+    foreach my $trait ( @$traits ) {
+        my ($args, $anno) = ($trait->args, $trait->handler);
         $anno->body->( $meta, $method_name, @$args );
         if ( $anno->has_code_attributes('OverwritesMethod') ) {
             $method = $meta->get_method( $method_name );
