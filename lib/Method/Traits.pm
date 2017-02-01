@@ -197,6 +197,9 @@ __END__
 
 =head1 DESCRIPTION
 
-Nothing to see here
+Traits are subroutines that are run at compile time to modify the
+behavior of a method. This can be something as drastic as replacing
+the method body, or something as unintrusive as simply tagging the
+method with metadata.
 
 =cut
