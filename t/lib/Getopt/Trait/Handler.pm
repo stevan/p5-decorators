@@ -5,25 +5,35 @@ use warnings;
 
 use Getopt::Long ();
 
-our %OPTS_BY_PACKAGE;
-
-sub set_opt_spec_for_slot {
-    my ($class, $spec, $slot_name) = @_;
-    my $opts = $OPTS_BY_PACKAGE{ $class } ||= {};
-    $opts->{ $spec } = $slot_name;
-}
-
-sub get_opt_spec {
-    my ($class) = @_;
-    return $OPTS_BY_PACKAGE{ $class } ||= {};
-}
-
 sub get_options {
     my ($class) = @_;
 
-    my $spec = get_opt_spec( $class );
-    die 'Unable to find an option spec for class('.$class.')'
-        unless $spec;
+    my $spec = {};
+    my $meta = Scalar::Util::blessed( $class ) ? $class : MOP::Class->new( $class );
+
+    foreach my $method ( $meta->methods ) {
+        next unless $method->has_code_attributes(qr/^Opt/);
+        foreach my $trait ( Method::Traits::get_traits_for( $method ) ) {
+            next unless $trait->name eq 'Opt';
+
+            my ($opt_spec) = @{ $trait->args };
+            # the opt_spec defaults to the method-name
+            $opt_spec ||= $method->name;
+
+            # split by | and assume last item will be slot name
+            my $slot_name = (split /\|/ => $opt_spec)[-1];
+            # strip off any getopt::long type info as well
+            $slot_name =~ s/\=\w$//;
+
+            my $slot = $meta->get_slot( $slot_name )
+                    || $meta->get_slot_alias( $slot_name );
+
+            die 'Cannot find slot ('.$slot_name.') for Opt('.$opt_spec.') on `' . $method->name . '`'
+                unless $slot;
+
+            $spec->{ $opt_spec } = $slot->name;
+        }
+    }
 
     my %opts = map { $_ => \(my $x) } keys %$spec;
     Getopt::Long::GetOptions( %opts );

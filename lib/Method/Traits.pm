@@ -16,13 +16,14 @@ use Module::Runtime        (); # trait provider loading
 ## ...
 
 use Method::Traits::Trait;
+use Method::Traits::Meta::Provider;
 
-## ...
+## Globals
 
 our %PROVIDERS_BY_PKG; # this hold the set of available traits per package
 our %TRAIT_BY_CODE;    # mapping of CODE address to Trait
 
-## ...
+## Importers
 
 sub import {
     shift;
@@ -44,28 +45,40 @@ sub import_into {
     schedule_trait_collection( $meta )
 }
 
-## ...
+## Per-Package Provider Management
 
 sub add_trait_providers {
     my ($meta, @providers) = @_;
 
-    # It does not make any sense to create
-    # something that is meant to run in the
-    # BEGIN phase *after* that phase is done
-    # so catch this and error ...
-    die 'Annotation collection must be scheduled during BEGIN time, not (' . ${^GLOBAL_PHASE}. ')'
+    die 'Trait providers must be added during BEGIN time, not (' . ${^GLOBAL_PHASE}. ')'
         unless ${^GLOBAL_PHASE} eq 'START';
 
-    Module::Runtime::use_package_optimistically( $_ )
-        foreach @providers;
-
-    push @{ $PROVIDERS_BY_PKG{ $meta->name } ||= [] } => @providers;
+    Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
+    push @{ $PROVIDERS_BY_PKG{ $meta->name } ||=[] } => @providers;
 }
 
 sub get_trait_providers {
     my ($meta) = @_;
-    return @{ $PROVIDERS_BY_PKG{ $meta->name } };
+    return @{ $PROVIDERS_BY_PKG{ $meta->name } ||=[] };
 }
+
+## Per-CODE Trait Management
+
+sub add_traits_for {
+    my ($method, @traits) = @_;
+
+    die 'Traits must be added done during BEGIN time, not (' . ${^GLOBAL_PHASE}. ')'
+        unless ${^GLOBAL_PHASE} eq 'START';
+
+    push @{ $TRAIT_BY_CODE{ $method->body } ||=[] } => @traits;
+}
+
+sub get_traits_for {
+    my ($method) = @_;
+    return @{ $TRAIT_BY_CODE{ $method->body } ||=[] };
+}
+
+## Trait collection
 
 sub schedule_trait_collection {
     my ($meta) = @_;
@@ -74,7 +87,7 @@ sub schedule_trait_collection {
     # something that is meant to run in the
     # BEGIN phase *after* that phase is done
     # so catch this and error ...
-    die 'Annotation collection must be scheduled during BEGIN time, not (' . ${^GLOBAL_PHASE}. ')'
+    die 'Trait collection must be scheduled during BEGIN time, not (' . ${^GLOBAL_PHASE}. ')'
         unless ${^GLOBAL_PHASE} eq 'START';
 
     # This next step, we want to do
@@ -100,17 +113,19 @@ sub schedule_trait_collection {
         $meta->alias_method(
             FETCH_CODE_ATTRIBUTES => sub {
                 my ($pkg, $code) = @_;
-                return unless exists $TRAIT_BY_CODE{ $code };
                 # return just the strings, as expected by attributes ...
-                return map $_->original, @{ $TRAIT_BY_CODE{ $code } };
+                return map $_->original, get_traits_for( MOP::Method->new( $code ) );
             }
         );
         $meta->alias_method(
             MODIFY_CODE_ATTRIBUTES => sub {
                 my ($pkg, $code, @attrs) = @_;
 
+                my $meta   = MOP::Class->new( $pkg );
+                my $method = MOP::Method->new( $code );
+
                 my @traits    = map Method::Traits::Trait->new( $_ ), @attrs;
-                my $unhandled = find_unhandled_traits( $pkg, \@traits );
+                my @unhandled = find_unhandled_traits( $meta, @traits );
 
                 #use Data::Dumper;
                 #warn "WE ARE IN $pkg for $code with " . join ', ' => @attrs;
@@ -121,7 +136,7 @@ sub schedule_trait_collection {
                 # bad traits are bad,
                 # return the originals that
                 # we do not handle
-                return map $_->original, @$unhandled if @$unhandled;
+                return map $_->original, @unhandled if @unhandled;
 
                 # NOTE:
                 # ponder the idea of moving this
@@ -129,14 +144,10 @@ sub schedule_trait_collection {
                 # if that actually makes sense or not
                 # so it will need to be explored.
                 # - SL
-                my $method = apply_all_trait_handlers(
-                    MOP::Class->new( $pkg ),
-                    MOP::Method->new( $code ),
-                    \@traits
-                );
+                $method = apply_all_trait_handlers( $meta, $method, \@traits );
 
                 # store the traits we applied ...
-                $TRAIT_BY_CODE{ $method->body } = \@traits;
+                add_traits_for( $method, @traits );
 
                 # all is well, so let the world know that ...
                 return;
@@ -146,25 +157,23 @@ sub schedule_trait_collection {
 }
 
 sub find_unhandled_traits {
-    my ($pkg, $traits) = @_;
+    my ($meta, @traits) = @_;
 
     # Now loop through the traits and look to
     # see if we have any ones we cannot handle
     # and collect them for later ...
-    return [
-        grep {
-            my $stop;
-            foreach my $provider ( @{ $PROVIDERS_BY_PKG{ $pkg } } ) {
-                #warn "PROVIDER: $provider looking for: " . $_->[0];
-                if ( my $anno = $provider->can( $_->name ) ) {
-                    $_->handler( MOP::Method->new( $anno ) );
-                    $stop++;
-                    last;
-                }
+    return grep {
+        my $stop;
+        foreach my $provider ( get_trait_providers( $meta ) ) {
+            #warn "PROVIDER: $provider looking for: " . $_->[0];
+            if ( my $anno = $provider->can( $_->name ) ) {
+                $_->handler( MOP::Method->new( $anno ) );
+                $stop++;
+                last;
             }
-            not( $stop );
-        } @$traits
-    ];
+        }
+        not( $stop );
+    } @traits;
 }
 
 sub apply_all_trait_handlers {
