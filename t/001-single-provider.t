@@ -38,7 +38,13 @@ This is a simple test using a single provider ...
 
 BEGIN {
     is($Bar::Trait::Provider::TRAIT_USED, 1, '...the trait was used in BEGIN');
+    can_ok('Foo', 'MODIFY_CODE_ATTRIBUTES');
+    can_ok('Foo', 'FETCH_CODE_ATTRIBUTES');
 }
+
+# and in runtime ...
+ok(!Foo->can('MODIFY_CODE_ATTRIBUTES'), '... the MODIFY_CODE_ATTRIBUTES has been removed');
+can_ok('Foo', 'FETCH_CODE_ATTRIBUTES');
 
 {
     my $foo = Foo->new;
