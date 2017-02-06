@@ -52,13 +52,13 @@ our %TRAIT_BY_CODE;    # mapping of CODE address to Trait
 
 ## Per-Package Provider Management
 
-sub add_trait_providers {
+sub add_trait_providers_for {
     my (undef, $meta, @providers) = @_;
     Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
     push @{ $PROVIDERS_BY_PKG{ $meta->name } ||=[] } => @providers;
 }
 
-sub get_trait_providers {
+sub get_trait_providers_for {
     my (undef, $meta) = @_;
     return @{ $PROVIDERS_BY_PKG{ $meta->name } ||=[] };
 }
@@ -91,7 +91,7 @@ sub schedule_trait_collection {
 
     # add in the providers, so we can
     # get to them in other BEGIN blocks
-    $class->add_trait_providers( $meta, @providers );
+    $class->add_trait_providers_for( $meta, @providers );
 
     # no need to install the collectors
     # if they have already been installed
