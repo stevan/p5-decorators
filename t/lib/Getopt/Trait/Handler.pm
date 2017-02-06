@@ -11,9 +11,11 @@ sub get_options {
     my $spec = {};
     my $meta = Scalar::Util::blessed( $class ) ? $class : MOP::Class->new( $class );
 
-    foreach my $method ( $meta->methods ) {
-        next unless $method->has_code_attributes(qr/^Opt/);
-        foreach my $trait ( Method::Traits::get_traits_for( $method ) ) {
+    foreach my $method ( $meta->all_methods ) {
+        next if $method->is_required
+             || not $method->has_code_attributes(qr/^Opt/);
+
+        foreach my $trait ( Method::Traits->get_traits_for( $method ) ) {
             next unless $trait->name eq 'Opt';
 
             my ($opt_spec) = @{ $trait->args };

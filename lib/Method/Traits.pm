@@ -23,7 +23,8 @@ use Method::Traits::Meta::Provider;
 ## --------------------------------------------------------
 
 sub import {
-    shift;
+    my $class = shift;
+
     return unless @_;
 
     my @args = @_;
@@ -32,13 +33,13 @@ sub import {
         $args[0] = 'Method::Traits::Meta::Provider';
     }
 
-    import_into( scalar caller, @args );
+    $class->import_into( scalar caller, @args );
 }
 
 sub import_into {
-    my ($pkg, @providers) = @_;
-    my $meta = Scalar::Util::blessed( $pkg ) ? $pkg : MOP::Class->new( $pkg );
-    schedule_trait_collection( $meta, @providers );
+    my ($class, $target, @providers) = @_;
+    my $meta = Scalar::Util::blessed( $target ) ? $target : MOP::Class->new( $target );
+    $class->schedule_trait_collection( $meta, @providers );
 }
 
 ## --------------------------------------------------------
@@ -51,25 +52,25 @@ our %TRAIT_BY_CODE;    # mapping of CODE address to Trait
 ## Per-Package Provider Management
 
 sub add_trait_providers {
-    my ($meta, @providers) = @_;
+    my (undef, $meta, @providers) = @_;
     Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
     push @{ $PROVIDERS_BY_PKG{ $meta->name } ||=[] } => @providers;
 }
 
 sub get_trait_providers {
-    my ($meta) = @_;
+    my (undef, $meta) = @_;
     return @{ $PROVIDERS_BY_PKG{ $meta->name } ||=[] };
 }
 
 ## Per-CODE Trait Management
 
 sub add_traits_for {
-    my ($method, @traits) = @_;
+    my (undef, $method, @traits) = @_;
     push @{ $TRAIT_BY_CODE{ $method->body } ||=[] } => @traits;
 }
 
 sub get_traits_for {
-    my ($method) = @_;
+    my (undef, $method) = @_;
     return @{ $TRAIT_BY_CODE{ $method->body } ||=[] };
 }
 
@@ -78,7 +79,7 @@ sub get_traits_for {
 ## --------------------------------------------------------
 
 sub schedule_trait_collection {
-    my ($meta, @providers) = @_;
+    my ($class, $meta, @providers) = @_;
 
     # It does not make any sense to create
     # something that is meant to run in the
@@ -89,7 +90,7 @@ sub schedule_trait_collection {
 
     # add in the providers, so we can
     # get to them in other BEGIN blocks
-    add_trait_providers( $meta, @providers );
+    $class->add_trait_providers( $meta, @providers );
 
     # no need to install the collectors
     # if they have already been installed
@@ -103,7 +104,7 @@ sub schedule_trait_collection {
         FETCH_CODE_ATTRIBUTES => sub {
             my ($pkg, $code) = @_;
             # return just the strings, as expected by attributes ...
-            return map $_->original, get_traits_for( MOP::Method->new( $code ) );
+            return map $_->original, $class->get_traits_for( MOP::Method->new( $code ) );
         }
     );
     $meta->alias_method(
@@ -114,7 +115,7 @@ sub schedule_trait_collection {
             my $method = MOP::Method->new( $code );
 
             my @traits    = map Method::Traits::Trait->new( $_ ), @attrs;
-            my @unhandled = find_unhandled_traits( $klass, @traits );
+            my @unhandled = $class->find_unhandled_traits( $klass, @traits );
 
             #use Data::Dumper;
             #warn "WE ARE IN $pkg for $code with " . join ', ' => @attrs;
@@ -133,10 +134,10 @@ sub schedule_trait_collection {
             # if that actually makes sense or not
             # so it will need to be explored.
             # - SL
-            $method = apply_all_trait_handlers( $klass, $method, \@traits );
+            $method = $class->apply_all_trait_handlers( $klass, $method, \@traits );
 
             # store the traits we applied ...
-            add_traits_for( $method, @traits );
+            $class->add_traits_for( $method, @traits );
 
             # all is well, so let the world know that ...
             return;
@@ -150,14 +151,14 @@ sub schedule_trait_collection {
 }
 
 sub find_unhandled_traits {
-    my ($meta, @traits) = @_;
+    my ($class, $meta, @traits) = @_;
 
     # Now loop through the traits and look to
     # see if we have any ones we cannot handle
     # and collect them for later ...
     return grep {
         my $stop;
-        foreach my $provider ( get_trait_providers( $meta ) ) {
+        foreach my $provider ( $class->get_trait_providers( $meta ) ) {
             #warn "PROVIDER: $provider looking for: " . $_->[0];
             if ( my $anno = $provider->can( $_->name ) ) {
                 $_->handler( MOP::Method->new( $anno ) );
@@ -170,7 +171,7 @@ sub find_unhandled_traits {
 }
 
 sub apply_all_trait_handlers {
-    my ($meta, $method, $traits) = @_;
+    my (undef, $meta, $method, $traits) = @_;
 
     # now we need to loop through the traits
     # that we parsed and apply the trait function
