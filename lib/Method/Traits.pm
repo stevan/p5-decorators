@@ -159,7 +159,7 @@ sub find_unhandled_traits {
     # and collect them for later ...
     return grep {
         my $stop;
-        foreach my $provider ( $class->get_trait_providers( $meta ) ) {
+        foreach my $provider ( $class->get_trait_providers_for( $meta ) ) {
             #warn "PROVIDER: $provider looking for: " . $_->[0];
             if ( my $anno = $provider->can( $_->name ) ) {
                 $_->handler( MOP::Method->new( $anno ) );
