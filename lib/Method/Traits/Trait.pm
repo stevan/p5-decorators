@@ -7,6 +7,8 @@ use warnings;
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
+use Carp ();
+
 use UNIVERSAL::Object;
 
 our @ISA; BEGIN { @ISA = ('UNIVERSAL::Object') }
@@ -58,7 +60,7 @@ sub BUILDARGS {
             };
         }
         else {
-            die 'Unable to parse trait (' . $original . ')';
+            Carp::croak('Unable to parse trait (' . $original . ')');
         }
 
     } else {

@@ -7,6 +7,7 @@ use warnings;
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
+use Carp                   ();
 use Scalar::Util           ();
 use MOP                    ();
 use attributes             (); # this is where we store the traits
@@ -85,7 +86,7 @@ sub schedule_trait_collection {
     # something that is meant to run in the
     # BEGIN phase *after* that phase is done
     # so catch this and error ...
-    die 'Trait collection must be scheduled during BEGIN time, not (' . ${^GLOBAL_PHASE}. ')'
+    Carp::croak('Trait collection must be scheduled during BEGIN time, not (' . ${^GLOBAL_PHASE}. ')')
         unless ${^GLOBAL_PHASE} eq 'START';
 
     # add in the providers, so we can
@@ -184,7 +185,7 @@ sub apply_all_trait_handlers {
         $anno->body->( $meta, $method_name, @$args );
         if ( $anno->has_code_attributes('OverwritesMethod') ) {
             $method = $meta->get_method( $method_name );
-            die 'Failed to find new overwriten method ('.$method_name.') in class ('.$meta->name.')'
+            Carp::croak('Failed to find new overwriten method ('.$method_name.') in class ('.$meta->name.')')
                 unless defined $method;
         }
     }
