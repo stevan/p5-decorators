@@ -92,4 +92,21 @@ __END__
 
 =pod
 
+=head1 DESCRIPTION
+
+This is just a simple object to parse and store the
+trait invocation information.
+
+=head1 METHODS
+
+=head2 C<new( $attribute_string )>
+
+=head2 C<original>
+
+=head2 C<name>
+
+=head2 C<args>
+
+=head2 C<handler>
+
 =cut

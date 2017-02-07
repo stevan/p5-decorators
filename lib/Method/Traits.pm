@@ -246,4 +246,52 @@ behavior of a method. This can be something as drastic as replacing
 the method body, or something as unintrusive as simply tagging the
 method with metadata.
 
+=head2 TRAITS
+
+A trait is simply a callback which is associated with a given
+subroutine and fired during compile time.
+
+=head2 How are traits registered?
+
+Traits are registered via a mapping of trait providers, which
+are just packages containing trait subroutines, and the class in
+which you intend to apply the traits.
+
+This is done by passing in the provider package name when using
+the L<Method::Traits> package, like so:
+
+    package My::Class;
+    use Method::Traits 'My::Trait::Provider';
+
+This will make available all the traits in F<My::Trait::Provider>
+for use inside F<My::Class>.
+
+=head2 How are traits associated?
+
+Traits are associated to a subroutine using the "attribute" feature
+of Perl. When the "attribute" mechanism is triggered for a given
+method, we extract the name of the attribute and then attempt to
+find a trait of that name in the associated providers.
+
+This means that in the following code:
+
+    package My::Class;
+    use Method::Traits 'My::Trait::Provider';
+
+    sub foo : SomeTrait;
+
+We will encounter the C<foo> method and see that it has the
+C<SomeTrait> "attribute". We will then look to see if there is a
+C<SomeTrait> trait available in the F<My::Trait::Provider>
+provider, and if found, will call that trait.
+
+=head2 How are traits called?
+
+The traits are called immediately when the "attribute" mechanism
+is triggered. The trait callbacks receieve at least two arguments,
+the first being a L<MOP::Class> instance representing the
+subroutine's package, the next being the name of that subroutine,
+and then, if there are any arguments passed to the trait, they are
+also passed along.
+
 =cut

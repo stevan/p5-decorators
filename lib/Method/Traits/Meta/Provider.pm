@@ -15,7 +15,12 @@ __END__
 
 =pod
 
-=head1 Traits
+=head1 DESCRIPTION
+
+This is a trait provider which contains some useful traits
+for people who are writing trait providers.
+
+=head1 TRAITS
 
 =head2 OverwritesMethod
 
