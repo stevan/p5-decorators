@@ -1,4 +1,10 @@
 Revision history for Perl extension Method-Annotation
 
-0.01
+0.02 2017-02-08
+    - bumping a version number on the MOP and
+      putting dates in the changelog, it wouldn't
+      be the initial release unless there was
+      *something* wrong, amiright?
+
+0.01 2017-02-07
     - Initial release to an unsuspecting world
