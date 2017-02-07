@@ -43,12 +43,20 @@ sub BUILDARGS {
                 original => $original,
                 name     => $1,
                 args     => [
+                    # NOTE:
+                    # This parses arguments badly,
+                    # it makes no attempt to enforce
+                    # anything, just splits on the
+                    # comma, both skinny and fat,
+                    # then strips away any quotes
+                    # and treats everything as a
+                    # simple string.
                     map {
                         my $arg = $_;
-                        $arg =~ s/^\'//;
-                        $arg =~ s/\'$//;
+                        $arg =~ s/^['"]//;
+                        $arg =~ s/['"]$//;
                         $arg;
-                    } split /\,\s?/ => $2
+                    } split /\s*(?:\,|\=\>)\s*/ => $2
                 ]
             };
         }

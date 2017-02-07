@@ -41,8 +41,8 @@ BEGIN {
         )
     }
 
-    sub first_name : Accessor(ro, 'fname');
-    sub last_name  : Accessor(rw, 'lname');
+    sub first_name : Accessor(ro => 'fname');
+    sub last_name  : Accessor(rw => 'lname');
 }
 
 my $p = Person->new( fname => 'Bob', lname => 'Smith' );
