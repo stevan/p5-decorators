@@ -1,5 +1,5 @@
 package Method::Traits;
-# ABSTRACT: Apply traits your methods
+# ABSTRACT: Apply traits to your methods
 
 use strict;
 use warnings;
@@ -293,5 +293,29 @@ the first being a L<MOP::Class> instance representing the
 subroutine's package, the next being the name of that subroutine,
 and then, if there are any arguments passed to the trait, they are
 also passed along.
+
+=head1 METHODS
+
+These are all class methods.
+
+=head2 C<add_trait_providers_for( $meta, @providers )>
+
+This will register the given C<@providers> with the package
+pointed to by C<$meta>, which is a L<MOP::Class> instance.
+
+=head2 C<get_trait_providers_for( $meta )>
+
+This will return any C<@providers> registered with the package
+pointed to by C<$meta>, which is a L<MOP::Class> instance.
+
+=head2 C<add_traits_for( $method, @traits ) >
+
+This will associate the given C<@traits> with the method pointed
+to by the C<$method>, which is a L<MOP::Method> instance.
+
+=head2 C<get_traits_for( $method )>
+
+This will return any C<@traits> associated with the method pointed
+to by the C<$method>, which is a L<MOP::Method> instance.
 
 =cut
