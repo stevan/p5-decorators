@@ -122,7 +122,7 @@ sub schedule_trait_collection {
             #warn "WE ARE IN $pkg for $code with " . join ', ' => @attrs;
             #warn "ATTRS: " . Dumper \@attrs;
             #warn "TRAITS: " . Dumper \@traits;
-            #warn "UNHANDLED: " . Dumper $unhandled;
+            #warn "UNHANDLED: " . Dumper \@unhandled;
 
             # bad traits are bad,
             # return the originals that
@@ -198,6 +198,46 @@ sub apply_all_trait_handlers {
 __END__
 
 =pod
+
+=head1 SYNOPSIS
+
+    package Person;
+    use strict;
+    use warnings;
+
+    use Method::Traits qw[ MyAccessor::Trait::Provider ];
+
+    use parent 'UNIVERSAL::Object';
+
+    our %HAS = (
+        fname => sub { "" },
+        lname => sub { "" },
+    );
+
+    sub first_name : Accessor('ro', 'fname');
+    sub last_name  : Accessor('rw', 'lname');
+
+    package MyAccessor::Trait::Provider;
+    use strict;
+    use warnings;
+
+    use Method::Traits ':for_providers';
+
+    sub Accessor : OverwritesMethod {
+        my ($meta, $method_name, $type, $slot_name) = @_;
+
+        $meta->add_method( $method_name => sub {
+            die 'ro accessor' if $_[1];
+            $_[0]->{$slot_name};
+        })
+            if $type eq 'ro';
+
+        $meta->add_method( $method_name => sub {
+            $_[0]->{$slot_name} = $_[1] if $_[1];
+            $_[0]->{$slot_name};
+        })
+            if $type eq 'rw';
+    }
 
 =head1 DESCRIPTION
 
