@@ -9,7 +9,7 @@ our $AUTHORITY = 'cpan:STEVAN';
 
 use Carp                   ();
 use Scalar::Util           ();
-use MOP                    ();
+use MOP                    (); # this is how we do most of our work
 use attributes             (); # this is where we store the traits
 use B::CompilerPhase::Hook (); # multi-phase programming
 use Module::Runtime        (); # trait provider loading
@@ -278,7 +278,7 @@ This means that in the following code:
     package My::Class;
     use Method::Traits 'My::Trait::Provider';
 
-    sub foo : SomeTrait;
+    sub foo : SomeTrait { ... }
 
 We will encounter the C<foo> method and see that it has the
 C<SomeTrait> "attribute". We will then look to see if there is a
