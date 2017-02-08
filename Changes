@@ -1,4 +1,7 @@
 Revision history for Perl extension Method-Traits
 
+0.02
+    - Improved parsing of multi-line attributes
+
 0.01 2017-02-07
     - Initial release to an unsuspecting world
