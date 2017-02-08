@@ -161,8 +161,8 @@ sub find_unhandled_traits {
         my $stop;
         foreach my $provider ( $class->get_trait_providers_for( $meta ) ) {
             #warn "PROVIDER: $provider looking for: " . $_->[0];
-            if ( my $anno = $provider->can( $_->name ) ) {
-                $_->handler( MOP::Method->new( $anno ) );
+            if ( my $handler = $provider->can( $_->name ) ) {
+                $_->handler( MOP::Method->new( $handler ) );
                 $stop++;
                 last;
             }
@@ -181,9 +181,9 @@ sub apply_all_trait_handlers {
     my $method_name = $method->name;
 
     foreach my $trait ( @$traits ) {
-        my ($args, $anno) = ($trait->args, $trait->handler);
-        $anno->body->( $meta, $method_name, @$args );
-        if ( $anno->has_code_attributes('OverwritesMethod') ) {
+        my ($args, $handler) = ($trait->args, $trait->handler);
+        $handler->body->( $meta, $method_name, @$args );
+        if ( $handler->has_code_attributes('OverwritesMethod') ) {
             $method = $meta->get_method( $method_name );
             Carp::croak('Failed to find new overwriten method ('.$method_name.') in class ('.$meta->name.')')
                 unless defined $method;

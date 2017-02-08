@@ -1,4 +1,9 @@
-Revision history for Perl extension Method-Annotation
+Revision history for Perl extension Method-Traits
+
+0.03
+    - releasing this at a reasonable hour so that
+      I won't mess it up again.
+        - *sigh*
 
 0.02 2017-02-08
     - bumping a version number on the MOP and
