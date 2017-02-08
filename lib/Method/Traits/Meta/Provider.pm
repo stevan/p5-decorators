@@ -4,7 +4,7 @@ package Method::Traits::Meta::Provider;
 use strict;
 use warnings;
 
-our $VERSION   = '0.02';
+our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
 sub OverwritesMethod { () }

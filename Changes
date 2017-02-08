@@ -1,15 +1,4 @@
 Revision history for Perl extension Method-Traits
 
-0.03
-    - releasing this at a reasonable hour so that
-      I won't mess it up again.
-        - *sigh*
-
-0.02 2017-02-08
-    - bumping a version number on the MOP and
-      putting dates in the changelog, it wouldn't
-      be the initial release unless there was
-      *something* wrong, amiright?
-
 0.01 2017-02-07
     - Initial release to an unsuspecting world
