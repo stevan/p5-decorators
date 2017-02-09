@@ -318,4 +318,22 @@ to by the C<$method>, which is a L<MOP::Method> instance.
 This will return any C<@traits> associated with the method pointed
 to by the C<$method>, which is a L<MOP::Method> instance.
 
+=head1 PERL VERSION COMPATIBILITY
+
+For the moment I am going to require 5.14.5 because of the following quote
+by Zefram in the L<Sub::WhenBodied> documentation:
+
+  Prior to Perl 5.15.4, attribute handlers are executed before the body
+  is attached, so see it in that intermediate state. (From Perl 5.15.4
+  onwards, attribute handlers are executed after the body is attached.)
+  It is otherwise unusual to see the subroutine in that intermediate
+  state.
+
+I am also using the C<${^GLOBAL_PHASE}> variable, which was introduced in
+5.14.
+
+It likely is possible using L<Devel::GlobalPhase> and C<Sub::WhenBodied>
+to actually implment this all for pre-5.14 perls, but for now I am not
+going to worry about that.
+
 =cut
