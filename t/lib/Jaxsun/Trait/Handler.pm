@@ -4,13 +4,13 @@ use strict;
 use warnings;
 
 use MOP;
-use JSON::MaybeXS;
+use JSON;
 use Data::Dumper;
 
 sub new {
     my ($class, $JSON) = @_;
     bless {
-        JSON => $JSON // JSON::MaybeXS->new,
+        JSON => $JSON // JSON->new,
     } => $class;
 }
 

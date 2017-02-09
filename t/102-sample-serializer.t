@@ -57,7 +57,7 @@ BEGIN {
 	}
 }
 
-my $JAX = Jaxsun::Trait::Handler->new( JSON::MaybeXS->new->canonical );
+my $JAX = Jaxsun::Trait::Handler->new( JSON->new->canonical );
 
 my $p = Person->new( first_name => 'Bob', last_name => 'Smith' );
 isa_ok($p, 'Person');
