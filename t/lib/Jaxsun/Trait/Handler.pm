@@ -4,13 +4,13 @@ use strict;
 use warnings;
 
 use MOP;
-use JSON;
+use JSON::PP;
 use Data::Dumper;
 
 sub new {
     my ($class, $JSON) = @_;
     bless {
-        JSON => $JSON // JSON->new,
+        JSON => $JSON // JSON::PP->new,
     } => $class;
 }
 
