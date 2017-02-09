@@ -36,7 +36,7 @@ sub BUILDARGS {
         # None of the args are eval-ed and they are
         # basically just a list of strings.
 
-        if ( $original =~ m/([a-zA-Z_]*)\(\s*(.*)\s*\)/ms ) {
+        if ( $original =~ m/([a-zA-Z_]*)\(\s*(.*)\)/ms ) {
             #warn "parsed paren/args form for ($_)";
             return +{
                 original => $original,
@@ -52,6 +52,7 @@ sub BUILDARGS {
                     # simple string.
                     map {
                         my $arg = $_;
+                        $arg =~ s/\s*$//;
                         $arg =~ s/^['"]//;
                         $arg =~ s/['"]$//;
                         $arg;
