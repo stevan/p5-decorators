@@ -34,7 +34,9 @@ sub BUILDARGS {
 
         # NOTE:
         # None of the args are eval-ed and they are
-        # basically just a list of strings.
+        # basically just a list of strings, with the
+        # one exception of the string "undef", which
+        # will be turned into undef
 
         if ( $original =~ m/([a-zA-Z_]*)\(\s*(.*)\)/ms ) {
             #warn "parsed paren/args form for ($_)";
@@ -55,7 +57,7 @@ sub BUILDARGS {
                         $arg =~ s/\s*$//;
                         $arg =~ s/^['"]//;
                         $arg =~ s/['"]$//;
-                        $arg;
+                        $arg eq 'undef' ? undef : $arg;
                     } split /\s*(?:\,|\=\>)\s*/ => $2
                 ]
             };

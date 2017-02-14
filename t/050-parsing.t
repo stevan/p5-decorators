@@ -35,7 +35,8 @@ This is a simple test using a single provider ...
 
     sub foo : Bar(
         'Baz',
-        10 => 20
+        10 => 20,
+        undef
     ) { 'FOO' }
 }
 
@@ -67,10 +68,21 @@ can_ok('Foo', 'FETCH_CODE_ATTRIBUTES');
         [
     q[Bar(
         'Baz',
-        10 => 20
+        10 => 20,
+        undef
     )]
         ],
         '... got the expected attributes'
+    );
+
+    my ($trait) = Method::Traits->get_traits_for( $method );
+    isa_ok($trait, 'Method::Traits::Trait');
+
+    is($trait->name, 'Bar', '... got the expected trait name');
+    is_deeply(
+        $trait->args,
+        [ 'Baz', 10, 20, undef ],
+        '... got the values we expected'
     );
 }
 

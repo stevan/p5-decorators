@@ -1,7 +1,9 @@
 Revision history for Perl extension Method-Traits
 
 0.03
-    - ...
+    - handle the string 'undef' in trait, convert
+      it into proper undef value
+        - added tests for this
 
 0.02 2017-02-14
     - Improved parsing of multi-line attributes
