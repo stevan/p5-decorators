@@ -1,6 +1,6 @@
 Revision history for Perl extension Method-Traits
 
-0.02
+0.02 2017-02-14
     - Improved parsing of multi-line attributes
     - switch test to use JSON::PP, which is core
     - specify the need for Perl 5.14.5 as minimum version
