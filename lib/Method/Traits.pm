@@ -140,6 +140,8 @@ sub schedule_trait_collection {
             # store the traits we applied ...
             $class->add_traits_for( $method, @traits );
 
+            #warn ${^GLOBAL_PHASE};
+
             # all is well, so let the world know that ...
             return;
         }
@@ -147,6 +149,8 @@ sub schedule_trait_collection {
 
     B::CompilerPhase::Hook::enqueue_CHECK {
         #warn "STEP 2";
+        #warn "CHECK: " . ${^GLOBAL_PHASE};
+
         $meta->delete_method_alias('MODIFY_CODE_ATTRIBUTES');
     };
 }
@@ -198,6 +202,11 @@ sub apply_all_trait_handlers {
 __END__
 
 =pod
+
+=head1 UNDER CONSTRUCTION
+
+This module is still heavily under construction and there is a high likielihood
+that the details will change, bear that in mind if you choose to use it.
 
 =head1 SYNOPSIS
 
