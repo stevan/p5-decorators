@@ -4,7 +4,7 @@ package Method::Traits;
 use strict;
 use warnings;
 
-our $VERSION   = '0.03';
+our $VERSION   = '0.04';
 our $AUTHORITY = 'cpan:STEVAN';
 
 use Carp                   ();
@@ -186,7 +186,7 @@ sub apply_all_trait_handlers {
 
     foreach my $trait ( @$traits ) {
         my ($args, $handler) = ($trait->args, $trait->handler);
-        $handler->body->( $meta, $method_name, @$args );
+        $handler->body->( $meta, $method, @$args );
         if ( $handler->has_code_attributes('OverwritesMethod') ) {
             $method = $meta->get_method( $method_name );
             Carp::croak('Failed to find new overwriten method ('.$method_name.') in class ('.$meta->name.')')

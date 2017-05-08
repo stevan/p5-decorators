@@ -6,7 +6,9 @@ use warnings;
 use Method::Traits ':for_providers';
 
 sub Accessor : OverwritesMethod {
-    my ($meta, $method_name, $type, $slot_name) = @_;
+    my ($meta, $method, $type, $slot_name) = @_;
+
+    my $method_name = $method->name;
 
     $meta->add_method( $method_name => sub {
         die 'ro accessor' if $_[1];

@@ -1,5 +1,7 @@
 Revision history for Perl extension Method-Traits
 
+0.04
+
 0.03 2017-02-23
     - added a warning to the docs about things
       still being in a state of flux

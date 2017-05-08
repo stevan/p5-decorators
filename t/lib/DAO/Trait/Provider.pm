@@ -6,7 +6,9 @@ use warnings;
 use Method::Traits ':for_providers';
 
 sub FindOne : OverwritesMethod {
-    my ($meta, $method_name, $SQL, %opts) = @_;
+    my ($meta, $method, $SQL, %opts) = @_;
+
+    my $method_name = $method->name;
 
     my $num_params =()= $SQL =~ /\?/;
 
@@ -36,7 +38,9 @@ sub FindOne : OverwritesMethod {
 }
 
 sub FindMany : OverwritesMethod {
-    my ($meta, $method_name, $SQL, %opts) = @_;
+    my ($meta, $method, $SQL, %opts) = @_;
+
+    my $method_name = $method->name;
 
     my $num_params =()= $SQL =~ /\?/;
 
