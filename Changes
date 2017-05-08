@@ -1,6 +1,8 @@
 Revision history for Perl extension Method-Traits
 
 0.04
+    - traits now get the MOP::Method instance instead
+      of only the name
 
 0.03 2017-02-23
     - added a warning to the docs about things

@@ -233,7 +233,9 @@ that the details will change, bear that in mind if you choose to use it.
     use Method::Traits ':for_providers';
 
     sub Accessor : OverwritesMethod {
-        my ($meta, $method_name, $type, $slot_name) = @_;
+        my ($meta, $method, $type, $slot_name) = @_;
+
+        my $method_name = $method->name;
 
         $meta->add_method( $method_name => sub {
             die 'ro accessor' if $_[1];
@@ -299,9 +301,9 @@ provider, and if found, will call that trait.
 The traits are called immediately when the "attribute" mechanism
 is triggered. The trait callbacks receieve at least two arguments,
 the first being a L<MOP::Class> instance representing the
-subroutine's package, the next being the name of that subroutine,
-and then, if there are any arguments passed to the trait, they are
-also passed along.
+subroutine's package, the next being the L<MOP::Method> instance
+representing the subroutine itself, and then, if there are any
+arguments passed to the trait, they are also passed along.
 
 =head1 METHODS
 
