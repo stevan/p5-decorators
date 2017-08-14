@@ -82,12 +82,6 @@ sub get_traits_for {
 sub schedule_trait_collection {
     my ($class, $meta, @providers) = @_;
 
-    # It does not make any sense to create
-    # something that is meant to run in the
-    # BEGIN phase *after* that phase is done
-    # so catch this and error ...
-    Carp::croak('Trait collection must be scheduled during BEGIN time, not (' . ${^GLOBAL_PHASE}. ')')
-        unless ${^GLOBAL_PHASE} eq 'START';
 
     # add in the providers, so we can
     # get to them in other BEGIN blocks
@@ -147,7 +141,10 @@ sub schedule_trait_collection {
         }
     );
 
-    B::CompilerPhase::Hook::enqueue_CHECK {
+
+    # Odd/nice thing about UNITCHECK, if you enqueue
+    # it during BEGIN time, it will run during BEGIN
+    B::CompilerPhase::Hook::enqueue_UNITCHECK {
         #warn "STEP 2";
         #warn "CHECK: " . ${^GLOBAL_PHASE};
 
