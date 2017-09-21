@@ -1,8 +1,9 @@
 Revision history for Perl extension Method-Traits
 
 0.06
-    - remove the B::CompilerPhase::Hook dependency
-      and replace it with Devel::Hook
+    - stop removing the MODIFY_CODE_ATTRIBUTE method
+      which means can remove the B::CompilerPhase::Hook
+      dependency
 
 0.05 2017-08-14
     [BUGFIX]

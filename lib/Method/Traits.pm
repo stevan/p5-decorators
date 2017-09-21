@@ -11,7 +11,6 @@ use Carp            ();
 use Scalar::Util    ();
 use MOP             (); # this is how we do most of our work
 use attributes      (); # this is where we store the traits
-use Devel::Hook     (); # multi-phase programming
 use Module::Runtime (); # trait provider loading
 
 ## ...
@@ -139,16 +138,6 @@ sub schedule_trait_collection {
             return;
         }
     );
-
-
-    # Odd/nice thing about UNITCHECK, if you enqueue
-    # it during BEGIN time, it will run during BEGIN
-    Devel::Hook->unshift_UNITCHECK_hook(sub {
-        #warn "STEP 2";
-        #warn "UNITCHECK: " . ${^GLOBAL_PHASE};
-
-        $meta->delete_method_alias('MODIFY_CODE_ATTRIBUTES');
-    });
 
     #warn "HMMMM: " . ${^GLOBAL_PHASE} . " => " . $meta->name;
 }
