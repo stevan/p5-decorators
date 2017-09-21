@@ -1,5 +1,9 @@
 Revision history for Perl extension Method-Traits
 
+0.06
+    - remove the B::CompilerPhase::Hook dependency
+      and replace it with Devel::Hook
+
 0.05 2017-08-14
     [BUGFIX]
     - I was mistakenly assuming this would work under
