@@ -78,8 +78,10 @@ sub schedule_trait_collection {
         if $meta->has_method_alias('FETCH_CODE_ATTRIBUTES')
         && $meta->has_method_alias('MODIFY_CODE_ATTRIBUTES');
 
-    my %accepted;
     # now install the collectors ...
+
+    my %accepted; # shared state between these two methods ...
+
     $meta->alias_method(
         FETCH_CODE_ATTRIBUTES => sub {
             my ($pkg, $code) = @_;
@@ -94,10 +96,18 @@ sub schedule_trait_collection {
             my $klass      = MOP::Class->new( $pkg );
             my @providers  = __PACKAGE__->get_trait_providers_for( $klass ); # fetch complete set
             my @attributes = map MOP::Method::Attribute->new( $_ ), @attrs;
-            my @unhandled  = grep {
-                my $name = $_->name;
-                not( List::Util::first { $_->can( $name ) } @providers );
-            } @attributes;
+
+            my ( %attr_to_handler_map, @unhandled );
+            foreach my $attribute ( @attributes ) {
+                my $name = $attribute->name;
+                my $h; $h = $_->can( $name ) and last foreach @providers;
+                if ( $h ) {
+                    $attr_to_handler_map{ $name } = $h;
+                }
+                else {
+                    push @unhandled, $attribute->original;
+                }
+            }
 
             #use Data::Dumper;
             #warn "WE ARE IN $pkg for $code with " . join ', ' => @attrs;
@@ -108,21 +118,12 @@ sub schedule_trait_collection {
             # bad traits are bad,
             # return the originals that
             # we do not handle
-            return map $_->original, @unhandled if @unhandled;
-
+            return @unhandled if @unhandled;
 
             my $method = MOP::Method->new( $code );
-
-            # NOTE:
-            # ponder the idea of moving this
-            # call to UNITCHECK phase, not sure
-            # if that actually makes sense or not
-            # so it will need to be explored.
-            # - SL
             foreach my $attribute ( @attributes ) {
                 my ($name, $args) = ($attribute->name, $attribute->args);
-
-                my $h; $h = $_->can( $name ) and last foreach @providers;
+                my $h = $attr_to_handler_map{ $name };
                 $h->( $klass, $method, @$args );
 
                 if ( MOP::Method->new( $h )->has_code_attributes('OverwritesMethod') ) {
@@ -135,14 +136,10 @@ sub schedule_trait_collection {
             # store the traits we applied ...
             $accepted{ $method->body } = [ map $_->original, @attributes ];
 
-            #warn ${^GLOBAL_PHASE};
-
             # all is well, so let the world know that ...
             return;
         }
     );
-
-    #warn "HMMMM: " . ${^GLOBAL_PHASE} . " => " . $meta->name;
 }
 
 1;
