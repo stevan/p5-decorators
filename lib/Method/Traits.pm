@@ -35,25 +35,21 @@ sub import {
     $class->import_into( scalar caller, @args );
 }
 
-sub import_into {
-    my (undef, $target, @providers) = @_;
-    my $meta = Scalar::Util::blessed( $target ) ? $target : MOP::Class->new( $target );
-    __PACKAGE__->schedule_trait_collection( $meta, @providers );
-}
-
 ## --------------------------------------------------------
 ## Trait collection
 ## --------------------------------------------------------
 
 our %PROVIDERS_BY_PKG;
 
-sub schedule_trait_collection {
-    my (undef, $meta, @providers) = @_;
+sub import_into {
+    my (undef, $package, @providers) = @_;
 
     # add in the providers, so we can
     # get to them when needed ...
     Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
-    push @{ $PROVIDERS_BY_PKG{ $meta->name } ||=[] } => @providers;
+    push @{ $PROVIDERS_BY_PKG{ $package } ||=[] } => @providers;
+
+    my $meta = Scalar::Util::blessed( $package ) ? $package : MOP::Class->new( $package );
 
     # no need to install the collectors
     # if they have already been installed
@@ -68,16 +64,16 @@ sub schedule_trait_collection {
 
     $meta->alias_method(
         FETCH_CODE_ATTRIBUTES => sub {
-            my ($pkg, $code) = @_;
+            my (undef, $code) = @_;
             # return just the strings, as expected by attributes ...
-            return @{ $accepted{ $code } || [] };
+            return $accepted{ $code } ? @{ $accepted{ $code } } : ();
         }
     );
     $meta->alias_method(
         MODIFY_CODE_ATTRIBUTES => sub {
             my ($pkg, $code, @attrs) = @_;
 
-            my @providers  = @{ $PROVIDERS_BY_PKG{ $pkg } ||=[] }; # fetch complete set
+            my @providers  = @{ $PROVIDERS_BY_PKG{ $pkg } }; # fetch complete set
             my @attributes = map MOP::Method::Attribute->new( $_ ), @attrs;
 
             my ( %attr_to_handler_map, @unhandled );
@@ -92,22 +88,16 @@ sub schedule_trait_collection {
                 }
             }
 
-            #use Data::Dumper;
-            #warn "WE ARE IN $pkg for $code with " . join ', ' => @attrs;
-            #warn "ATTRS: " . Dumper \@attrs;
-            #warn "TRAITS: " . Dumper \@traits;
-            #warn "UNHANDLED: " . Dumper \@unhandled;
-
-            # bad traits are bad,
-            # return the originals that
-            # we do not handle
+            # return the bad traits as strings, as expected by attributes ...
             return @unhandled if @unhandled;
 
             my $klass  = MOP::Class->new( $pkg );
             my $method = MOP::Method->new( $code );
+
             foreach my $attribute ( @attributes ) {
                 my ($name, $args) = ($attribute->name, $attribute->args);
                 my $h = $attr_to_handler_map{ $name };
+
                 $h->( $klass, $method, @$args );
 
                 if ( MOP::Method->new( $h )->has_code_attributes('OverwritesMethod') ) {
@@ -120,7 +110,6 @@ sub schedule_trait_collection {
             # store the traits we applied ...
             $accepted{ $method->body } = [ map $_->original, @attributes ];
 
-            # all is well, so let the world know that ...
             return;
         }
     );
