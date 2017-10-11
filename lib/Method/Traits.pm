@@ -42,34 +42,18 @@ sub import_into {
 }
 
 ## --------------------------------------------------------
-## Storage
-## --------------------------------------------------------
-
-our %PROVIDERS_BY_PKG; # this hold the set of available traits per package
-
-## Per-Package Provider Management
-
-sub add_trait_providers_for {
-    my (undef, $meta, @providers) = @_;
-    Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
-    push @{ $PROVIDERS_BY_PKG{ $meta->name } ||=[] } => @providers;
-}
-
-sub get_trait_providers_for {
-    my (undef, $meta) = @_;
-    return @{ $PROVIDERS_BY_PKG{ $meta->name } ||=[] };
-}
-
-## --------------------------------------------------------
 ## Trait collection
 ## --------------------------------------------------------
+
+our %PROVIDERS_BY_PKG;
 
 sub schedule_trait_collection {
     my (undef, $meta, @providers) = @_;
 
     # add in the providers, so we can
     # get to them when needed ...
-    __PACKAGE__->add_trait_providers_for( $meta, @providers );
+    Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
+    push @{ $PROVIDERS_BY_PKG{ $meta->name } ||=[] } => @providers;
 
     # no need to install the collectors
     # if they have already been installed
@@ -93,8 +77,7 @@ sub schedule_trait_collection {
         MODIFY_CODE_ATTRIBUTES => sub {
             my ($pkg, $code, @attrs) = @_;
 
-            my $klass      = MOP::Class->new( $pkg );
-            my @providers  = __PACKAGE__->get_trait_providers_for( $klass ); # fetch complete set
+            my @providers  = @{ $PROVIDERS_BY_PKG{ $pkg } ||=[] }; # fetch complete set
             my @attributes = map MOP::Method::Attribute->new( $_ ), @attrs;
 
             my ( %attr_to_handler_map, @unhandled );
@@ -105,7 +88,7 @@ sub schedule_trait_collection {
                     $attr_to_handler_map{ $name } = $h;
                 }
                 else {
-                    push @unhandled, $attribute->original;
+                    push @unhandled => $attribute->original;
                 }
             }
 
@@ -120,6 +103,7 @@ sub schedule_trait_collection {
             # we do not handle
             return @unhandled if @unhandled;
 
+            my $klass  = MOP::Class->new( $pkg );
             my $method = MOP::Method->new( $code );
             foreach my $attribute ( @attributes ) {
                 my ($name, $args) = ($attribute->name, $attribute->args);
