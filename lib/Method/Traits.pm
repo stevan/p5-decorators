@@ -122,7 +122,7 @@ sub schedule_trait_collection {
             foreach my $attribute ( @attributes ) {
                 my ($name, $args) = ($attribute->name, $attribute->args);
 
-                my $h = (List::Util::first { $_->can($name) } @providers)->can( $name );
+                my $h; $h = $_->can( $name ) and last foreach @providers;
                 $h->( $klass, $method, @$args );
 
                 if ( MOP::Method->new( $h )->has_code_attributes('OverwritesMethod') ) {
