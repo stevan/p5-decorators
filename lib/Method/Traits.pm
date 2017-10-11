@@ -91,10 +91,8 @@ sub schedule_trait_collection {
         MODIFY_CODE_ATTRIBUTES => sub {
             my ($pkg, $code, @attrs) = @_;
 
-            my $klass     = MOP::Class->new( $pkg );
-            my @providers = __PACKAGE__->get_trait_providers_for( $klass );
-            return unless @providers;
-
+            my $klass      = MOP::Class->new( $pkg );
+            my @providers  = __PACKAGE__->get_trait_providers_for( $klass ); # fetch complete set
             my @attributes = map MOP::Method::Attribute->new( $_ ), @attrs;
             my @unhandled  = grep {
                 my $name = $_->name;
