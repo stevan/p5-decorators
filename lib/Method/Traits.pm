@@ -46,7 +46,6 @@ sub import_into {
 ## --------------------------------------------------------
 
 our %PROVIDERS_BY_PKG; # this hold the set of available traits per package
-our %TRAIT_BY_CODE;    # mapping of CODE address to Trait
 
 ## Per-Package Provider Management
 
@@ -59,18 +58,6 @@ sub add_trait_providers_for {
 sub get_trait_providers_for {
     my (undef, $meta) = @_;
     return @{ $PROVIDERS_BY_PKG{ $meta->name } ||=[] };
-}
-
-## Per-CODE Trait Management
-
-sub add_traits_for {
-    my (undef, $method, @traits) = @_;
-    push @{ $TRAIT_BY_CODE{ $method->body } ||=[] } => @traits;
-}
-
-sub get_traits_for {
-    my (undef, $method) = @_;
-    return @{ $TRAIT_BY_CODE{ $method->body } ||=[] };
 }
 
 ## --------------------------------------------------------
@@ -91,23 +78,28 @@ sub schedule_trait_collection {
         if $meta->has_method_alias('FETCH_CODE_ATTRIBUTES')
         && $meta->has_method_alias('MODIFY_CODE_ATTRIBUTES');
 
+    my %accepted;
     # now install the collectors ...
     $meta->alias_method(
         FETCH_CODE_ATTRIBUTES => sub {
             my ($pkg, $code) = @_;
             # return just the strings, as expected by attributes ...
-            return map $_->original, __PACKAGE__->get_traits_for( MOP::Method->new( $code ) );
+            return @{ $accepted{ $code } || [] };
         }
     );
     $meta->alias_method(
         MODIFY_CODE_ATTRIBUTES => sub {
             my ($pkg, $code, @attrs) = @_;
 
-            my $klass  = MOP::Class->new( $pkg );
-            my $method = MOP::Method->new( $code );
+            my $klass     = MOP::Class->new( $pkg );
+            my @providers = __PACKAGE__->get_trait_providers_for( $klass );
+            return unless @providers;
 
-            my @traits    = map MOP::Method::Attribute->new( $_ ), @attrs;
-            my @unhandled = __PACKAGE__->find_unhandled_traits( $klass, @traits );
+            my @attributes = map MOP::Method::Attribute->new( $_ ), @attrs;
+            my @unhandled  = grep {
+                my $name = $_->name;
+                not( List::Util::first { $_->can( $name ) } @providers );
+            } @attributes;
 
             #use Data::Dumper;
             #warn "WE ARE IN $pkg for $code with " . join ', ' => @attrs;
@@ -120,16 +112,30 @@ sub schedule_trait_collection {
             # we do not handle
             return map $_->original, @unhandled if @unhandled;
 
+
+            my $method = MOP::Method->new( $code );
+
             # NOTE:
             # ponder the idea of moving this
             # call to UNITCHECK phase, not sure
             # if that actually makes sense or not
             # so it will need to be explored.
             # - SL
-            $method = __PACKAGE__->apply_all_trait_handlers( $klass, $method, \@traits );
+            foreach my $attribute ( @attributes ) {
+                my ($name, $args) = ($attribute->name, $attribute->args);
+
+                my $h = (List::Util::first { $_->can($name) } @providers)->can( $name );
+                $h->( $klass, $method, @$args );
+
+                if ( MOP::Method->new( $h )->has_code_attributes('OverwritesMethod') ) {
+                    $method = $klass->get_method( $method->name );
+                    Carp::croak('Failed to find new overwriten method ('.$method->name.') in class ('.$meta->name.')')
+                        unless defined $method;
+                }
+            }
 
             # store the traits we applied ...
-            __PACKAGE__->add_traits_for( $method, @traits );
+            $accepted{ $method->body } = [ map $_->original, @attributes ];
 
             #warn ${^GLOBAL_PHASE};
 
@@ -139,58 +145,6 @@ sub schedule_trait_collection {
     );
 
     #warn "HMMMM: " . ${^GLOBAL_PHASE} . " => " . $meta->name;
-}
-
-
-sub find_unhandled_traits {
-    my (undef, $meta, @traits) = @_;
-
-    # Now loop through the traits and look to
-    # see if we have any ones we cannot handle
-    # and collect them for later ...
-    return grep {
-        my $stop;
-        foreach my $provider ( __PACKAGE__->get_trait_providers_for( $meta ) ) {
-            #warn "PROVIDER: $provider looking for: " . $_->[0];
-            if ( my $handler = $provider->can( $_->name ) ) {
-                $stop++;
-                last;
-            }
-        }
-        not( $stop );
-    } @traits;
-}
-
-sub apply_all_trait_handlers {
-    my (undef, $meta, $method, $traits) = @_;
-
-    # now we need to loop through the traits
-    # that we parsed and apply the trait function
-    # to our method accordingly
-
-    my $method_name = $method->name;
-    my @providers   = __PACKAGE__->get_trait_providers_for( $meta );
-
-    foreach my $trait ( @$traits ) {
-        my ($name, $args) = ($trait->name, $trait->args);
-
-        my $handler;
-        foreach my $provider ( @providers ) {
-            if ( my $h = $provider->can( $name ) ) {
-                $handler = MOP::Method->new( $h );
-                last;
-            }
-        }
-
-        $handler->body->( $meta, $method, @$args );
-        if ( $handler->has_code_attributes('OverwritesMethod') ) {
-            $method = $meta->get_method( $method_name );
-            Carp::croak('Failed to find new overwriten method ('.$method_name.') in class ('.$meta->name.')')
-                unless defined $method;
-        }
-    }
-
-    return $method;
 }
 
 1;
