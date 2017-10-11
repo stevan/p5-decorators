@@ -47,7 +47,7 @@ BEGIN {
 }
 
 # and in runtime ...
-ok(!Foo->can('MODIFY_CODE_ATTRIBUTES'), '... the MODIFY_CODE_ATTRIBUTES has been removed');
+#ok(!Foo->can('MODIFY_CODE_ATTRIBUTES'), '... the MODIFY_CODE_ATTRIBUTES has been removed');
 can_ok('Foo', 'FETCH_CODE_ATTRIBUTES');
 
 {
