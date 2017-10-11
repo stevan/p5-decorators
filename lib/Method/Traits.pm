@@ -15,7 +15,6 @@ use Module::Runtime (); # trait provider loading
 
 ## ...
 
-use Method::Traits::Trait;
 use Method::Traits::Meta::Provider;
 
 ## --------------------------------------------------------
@@ -107,7 +106,7 @@ sub schedule_trait_collection {
             my $klass  = MOP::Class->new( $pkg );
             my $method = MOP::Method->new( $code );
 
-            my @traits    = map Method::Traits::Trait->new( $_ ), @attrs;
+            my @traits    = map MOP::Method::Attribute->new( $_ ), @attrs;
             my @unhandled = __PACKAGE__->find_unhandled_traits( $klass, @traits );
 
             #use Data::Dumper;
@@ -154,7 +153,6 @@ sub find_unhandled_traits {
         foreach my $provider ( __PACKAGE__->get_trait_providers_for( $meta ) ) {
             #warn "PROVIDER: $provider looking for: " . $_->[0];
             if ( my $handler = $provider->can( $_->name ) ) {
-                $_->handler( MOP::Method->new( $handler ) );
                 $stop++;
                 last;
             }
@@ -171,9 +169,19 @@ sub apply_all_trait_handlers {
     # to our method accordingly
 
     my $method_name = $method->name;
+    my @providers   = __PACKAGE__->get_trait_providers_for( $meta );
 
     foreach my $trait ( @$traits ) {
-        my ($args, $handler) = ($trait->args, $trait->handler);
+        my ($name, $args) = ($trait->name, $trait->args);
+
+        my $handler;
+        foreach my $provider ( @providers ) {
+            if ( my $h = $provider->can( $name ) ) {
+                $handler = MOP::Method->new( $h );
+                last;
+            }
+        }
+
         $handler->body->( $meta, $method, @$args );
         if ( $handler->has_code_attributes('OverwritesMethod') ) {
             $method = $meta->get_method( $method_name );
