@@ -1,6 +1,19 @@
 Revision history for Perl extension Method-Traits
 
 0.08
+    - improved arguments checking in `import_into`
+    - now uses MOP::Role instead of MOP::Class, we
+      actually don't need to care about inheritance, so
+      no reason to use MOP::Class
+
+    [BACKWARDS INCOMPATIBLE CHANGES]
+    - `import_into` no longer accepts MOP::Class objects
+      in the $package argument
+        - it also no longer accidently accepts random
+          blessed objects either, sorry, that was
+          sloppy
+
+    [DEPENDENCIES]
     - fixed Perl version dependency
         - thanks to Slaven Rezić for the ticket
     - fixed missing Carp dependancy
