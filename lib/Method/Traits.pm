@@ -43,8 +43,6 @@ our %PROVIDERS_BY_PKG;
 sub import_into {
     my (undef, $package, @providers) = @_;
 
-    # add in the providers, so we can
-    # get to them when needed ...
     Carp::confess('You must provide a valid package argument')
         unless $package;
 
@@ -53,10 +51,15 @@ sub import_into {
 
     Carp::confess('You must supply at least one provider')
         unless scalar @providers;
-    Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
-    push @{ $PROVIDERS_BY_PKG{ $package } ||=[] } => @providers;
 
-    my $meta = Scalar::Util::blessed( $package ) ? $package : MOP::Class->new( $package );
+    # conver this into a metaobject
+    my $meta = MOP::Role->new( $package );
+
+    # load the providers, and then ...
+    Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
+
+    # ... save the provider/package mapping
+    push @{ $PROVIDERS_BY_PKG{ $meta->name } ||=[] } => @providers;
 
     # no need to install the collectors
     # if they have already been installed
@@ -98,7 +101,7 @@ sub import_into {
             # return the bad traits as strings, as expected by attributes ...
             return @unhandled if @unhandled;
 
-            my $klass  = MOP::Class->new( $pkg );
+            my $klass  = MOP::Role->new( $pkg );
             my $method = MOP::Method->new( $code );
 
             foreach my $attribute ( @attributes ) {
