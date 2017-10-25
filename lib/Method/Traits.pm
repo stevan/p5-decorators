@@ -224,7 +224,7 @@ arguments passed to the trait, they are also passed along.
 
 =head1 PERL VERSION COMPATIBILITY
 
-For the moment I am going to require 5.14.5 because of the following quote
+For the moment I am going to require 5.14.4 because of the following quote
 by Zefram in the L<Sub::WhenBodied> documentation:
 
   Prior to Perl 5.15.4, attribute handlers are executed before the body
