@@ -45,6 +45,14 @@ sub import_into {
 
     # add in the providers, so we can
     # get to them when needed ...
+    Carp::confess('You must provide a valid package argument')
+        unless $package;
+
+    Carp::confess('The package argument cannot be a reference or blessed object')
+        if ref $package;
+
+    Carp::confess('You must supply at least one provider')
+        unless scalar @providers;
     Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
     push @{ $PROVIDERS_BY_PKG{ $package } ||=[] } => @providers;
 
