@@ -3,7 +3,7 @@
 Annotations for methods
 
 [![CPAN version](https://badge.fury.io/pl/Method-Traits.svg)](https://metacpan.org/pod/Method-Traits)
-[![Build Status](https://travis-ci.org/stevan/p5-MOP.svg?branch=master)](https://travis-ci.org/stevan/p5-MOP)
+[![Build Status](https://travis-ci.org/stevan/p5-Method-Traits.svg?branch=master)](https://travis-ci.org/stevan/p5-Method-Traits)
 
 # Copyright and License
 
