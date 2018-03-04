@@ -145,8 +145,7 @@ that the details will change, bear that in mind if you choose to use it.
     use Method::Traits qw[ MyAccessor::Trait::Provider ];
 
     use parent 'UNIVERSAL::Object';
-
-    our %HAS = (
+    use slots (
         fname => sub { "" },
         lname => sub { "" },
     );
