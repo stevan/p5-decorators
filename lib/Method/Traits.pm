@@ -38,7 +38,7 @@ sub import {
 ## Trait collection
 ## --------------------------------------------------------
 
-our %PROVIDERS_BY_PKG;
+our %AVAILABLE_TRAITS_BY_PKG;
 
 sub import_into {
     my (undef, $package, @providers) = @_;
@@ -56,21 +56,35 @@ sub import_into {
     my $meta = MOP::Role->new( $package );
 
     # load the providers, and then ...
-    Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
-
-    # ... save the provider/package mapping
-    push @{ $PROVIDERS_BY_PKG{ $meta->name } ||=[] } => @providers;
-
-    # no need to install the collectors
-    # if they have already been installed
-    # as they are not different
-    return
-        if $meta->has_method_alias('FETCH_CODE_ATTRIBUTES')
-        && $meta->has_method_alias('MODIFY_CODE_ATTRIBUTES');
+    install_traits( $meta, @providers );
 
     # now install the collectors ...
+    install_collectors( $meta )
+        # no need to install the collectors
+        # if they have already been installed
+        # as they are not different
+        unless $meta->has_method_alias('FETCH_CODE_ATTRIBUTES')
+            && $meta->has_method_alias('MODIFY_CODE_ATTRIBUTES');
+}
 
-    my %accepted; # shared state between these two methods ...
+sub install_traits {
+    my ($meta, @providers) = @_;
+
+    # load the providers, and then ...
+    Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
+
+    my $traits = $AVAILABLE_TRAITS_BY_PKG{ $meta->name } ||= {};
+
+    foreach my $provider ( @providers ) {
+        $traits->{ $_->name } = $_->body
+            foreach MOP::Role->new( $provider )->methods;
+    }
+}
+
+sub install_collectors {
+    my ($meta) = @_;
+
+    my %accepted; # shared data between the collectors ...
 
     $meta->alias_method(
         FETCH_CODE_ATTRIBUTES => sub {
@@ -79,40 +93,32 @@ sub import_into {
             return $accepted{ $code } ? @{ $accepted{ $code } } : ();
         }
     );
+
     $meta->alias_method(
         MODIFY_CODE_ATTRIBUTES => sub {
             my ($pkg, $code, @attrs) = @_;
 
-            my @providers  = @{ $PROVIDERS_BY_PKG{ $pkg } ||=[] }; # fetch complete set
-            my @attributes = map MOP::Method::Attribute->new( $_ ), @attrs;
+            # get the traits if we got them ...
+            my $traits = $AVAILABLE_TRAITS_BY_PKG{ $pkg };
 
-            my ( %attr_to_handler_map, @unhandled );
-            foreach my $attribute ( @attributes ) {
-                my $name = $attribute->name;
-                my $h; $h = $_->can( $name ) and last foreach @providers;
-                if ( $h ) {
-                    $attr_to_handler_map{ $name } = $h;
-                }
-                else {
-                    push @unhandled => $attribute->original;
-                }
-            }
+            return @attrs unless $traits; # no available traitls, then all is lost ...
+
+            my $role       = MOP::Role->new( $pkg );
+            my $method     = MOP::Method->new( $code );
+            my @attributes = map MOP::Method::Attribute->new( $_ ), @attrs;
+            my @unhandled  = map $_->original, grep !$traits->{ $_->name }, @attributes;
 
             # return the bad traits as strings, as expected by attributes ...
             return @unhandled if @unhandled;
 
-            my $klass  = MOP::Role->new( $pkg );
-            my $method = MOP::Method->new( $code );
-
             foreach my $attribute ( @attributes ) {
-                my ($name, $args) = ($attribute->name, $attribute->args);
-                my $h = $attr_to_handler_map{ $name };
+                my $h = $traits->{ $attribute->name };
 
-                $h->( $klass, $method, @$args );
+                $h->( $role, $method, @{ $attribute->args || [] } );
 
                 if ( MOP::Method->new( $h )->has_code_attributes('OverwritesMethod') ) {
-                    $method = $klass->get_method( $method->name );
-                    Carp::croak('Failed to find new overwriten method ('.$method->name.') in class ('.$meta->name.')')
+                    $method = $role->get_method( $method->name );
+                    Carp::croak('Failed to find new overwriten method ('.$method->name.') in class ('.$role->name.')')
                         unless defined $method;
                 }
             }
