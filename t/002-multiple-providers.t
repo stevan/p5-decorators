@@ -39,8 +39,10 @@ sure the mechanism can do that.
     use strict;
     use warnings;
 
-    use Method::Traits 'Bar::Trait::Provider';
-    use Method::Traits 'Baz::Trait::Provider';
+    use Method::Traits qw[
+        Bar::Trait::Provider
+        Baz::Trait::Provider
+    ];
 
     sub new { bless +{} => $_[0] }
 

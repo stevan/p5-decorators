@@ -38,8 +38,6 @@ sub import {
 ## Trait collection
 ## --------------------------------------------------------
 
-our %AVAILABLE_TRAITS_BY_PKG;
-
 sub import_into {
     my (undef, $package, @providers) = @_;
 
@@ -73,12 +71,15 @@ sub install_traits {
     # load the providers, and then ...
     Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
 
-    my $traits = $AVAILABLE_TRAITS_BY_PKG{ $meta->name } ||= {};
+    my $trait_role = MOP::Role->new( $meta->name.'::TRAITS' );
+    $trait_role->set_roles( @providers );
 
-    foreach my $provider ( @providers ) {
-        $traits->{ $_->name } = $_->body
-            foreach MOP::Role->new( $provider )->methods;
-    }
+    # TODO:
+    # catch any expections from this, tell them
+    # what context we are in, then re-throw the
+    # expection.
+    # - SL
+    MOP::Util::compose_roles( $trait_role );
 }
 
 sub install_collectors {
@@ -98,25 +99,23 @@ sub install_collectors {
         MODIFY_CODE_ATTRIBUTES => sub {
             my ($pkg, $code, @attrs) = @_;
 
-            # get the traits if we got them ...
-            my $traits = $AVAILABLE_TRAITS_BY_PKG{ $pkg };
-
-            return @attrs unless $traits; # no available traitls, then all is lost ...
-
             my $role       = MOP::Role->new( $pkg );
             my $method     = MOP::Method->new( $code );
             my @attributes = map MOP::Method::Attribute->new( $_ ), @attrs;
-            my @unhandled  = map $_->original, grep !$traits->{ $_->name }, @attributes;
+            my $trait_role = MOP::Role->new( $meta->name.'::TRAITS' );
+            my @unhandled  = map $_->original, grep !$trait_role->has_method( $_->name ), @attributes;
 
             # return the bad traits as strings, as expected by attributes ...
             return @unhandled if @unhandled;
 
             foreach my $attribute ( @attributes ) {
-                my $h = $traits->{ $attribute->name };
+                my $h = $trait_role->get_method( $attribute->name );
 
-                $h->( $role, $method, @{ $attribute->args || [] } );
+                $h or die 'This should never happen, as we have already checked this above ^^';
 
-                if ( MOP::Method->new( $h )->has_code_attributes('OverwritesMethod') ) {
+                $h->body->( $role, $method, @{ $attribute->args || [] } );
+
+                if ( $h->has_code_attributes('OverwritesMethod') ) {
                     $method = $role->get_method( $method->name );
                     Carp::croak('Failed to find new overwriten method ('.$method->name.') in class ('.$role->name.')')
                         unless defined $method;
