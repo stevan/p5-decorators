@@ -102,7 +102,7 @@ sub install_collectors {
             my $role       = MOP::Role->new( $pkg );
             my $method     = MOP::Method->new( $code );
             my @attributes = map MOP::Method::Attribute->new( $_ ), @attrs;
-            my $trait_role = MOP::Role->new( $meta->name.'::TRAITS' );
+            my $trait_role = MOP::Role->new( $role->name.'::TRAITS' );
             my @unhandled  = map $_->original, grep !$trait_role->has_method( $_->name ), @attributes;
 
             # return the bad traits as strings, as expected by attributes ...
