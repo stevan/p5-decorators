@@ -3,6 +3,9 @@ package # hide from PAUSE
 use strict;
 use warnings;
 
-sub Opt { () }
+use decorators;
+use decorators::from ':for_providers';
+
+sub Opt : TagMethod { () }
 
 1;

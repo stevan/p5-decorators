@@ -3,9 +3,10 @@ package # hide from PAUSE
 use strict;
 use warnings;
 
-use Method::Traits ':for_providers';
+use decorators;
+use decorators::from ':for_providers';
 
-sub FindOne : OverwritesMethod {
+sub FindOne : OverwriteMethod {
     my ($meta, $method, $SQL, %opts) = @_;
 
     my $method_name = $method->name;
@@ -37,7 +38,7 @@ sub FindOne : OverwritesMethod {
     });
 }
 
-sub FindMany : OverwritesMethod {
+sub FindMany : OverwriteMethod {
     my ($meta, $method, $SQL, %opts) = @_;
 
     my $method_name = $method->name;

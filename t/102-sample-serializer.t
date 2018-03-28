@@ -9,7 +9,6 @@ use Test::More;
 use Data::Dumper;
 
 BEGIN {
-	use_ok('Method::Traits');
 	# load from t/lib
 	use_ok('Jaxsun::Trait::Provider');
 	use_ok('Jaxsun::Trait::Handler');
@@ -27,16 +26,12 @@ act upon it.
 
 BEGIN {
 	package Person;
-
 	use strict;
 	use warnings;
 
-	use MOP;
-	use UNIVERSAL::Object;
+	use decorators from => 'Jaxsun::Trait::Provider';
 
-	use Method::Traits qw[ Jaxsun::Trait::Provider ];
-
-	our @ISA; BEGIN { @ISA = ('UNIVERSAL::Object') }
+	use parent 'UNIVERSAL::Object';
 	our %HAS; BEGIN {
 		%HAS = (
 			first_name => sub { "" },

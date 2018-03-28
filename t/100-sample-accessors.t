@@ -8,12 +8,6 @@ use lib 't/lib';
 use Test::More;
 use Data::Dumper;
 
-BEGIN {
-    use_ok('Method::Traits');
-    # load from t/lib
-    use_ok('Accessor::Trait::Provider');
-}
-
 =pod
 
 This is an example of a simple provider
@@ -28,38 +22,30 @@ BEGIN {
     use strict;
     use warnings;
 
-    use MOP;
-    use UNIVERSAL::Object;
+    use decorators ':accessors';
 
-    use Method::Traits qw[ Accessor::Trait::Provider ];
+    use parent 'UNIVERSAL::Object';
+    use slots (
+        fname => sub { "" },
+        lname => sub { "" },
+    );
 
-    our @ISA; BEGIN { @ISA = ('UNIVERSAL::Object') }
-    our %HAS; BEGIN {
-        %HAS = (
-            fname => sub { "" },
-            lname => sub { "" },
-        )
-    }
-
-    sub first_name : Accessor(ro => 'fname');
-    sub last_name  : Accessor(rw => 'lname');
+    sub first_name : ro(fname);
+    sub last_name  : rw(lname);
 
     package Employee;
 
     use strict;
     use warnings;
 
-    use Method::Traits qw[ Accessor::Trait::Provider ];
+    use decorators ':accessors';
 
-    our @ISA; BEGIN { @ISA = ('Person') }
-    our %HAS; BEGIN {
-        %HAS = (
-            %Person::HAS,
-            title => sub { "" },
-        )
-    }
+    use parent -norequire => 'Person';
+    use slots(
+        title => sub { "" },
+    );
 
-    sub title : Accessor(ro => 'title');
+    sub title : ro;
 }
 
 my $p = Person->new( fname => 'Bob', lname => 'Smith' );

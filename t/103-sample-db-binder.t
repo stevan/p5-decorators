@@ -9,7 +9,6 @@ use Test::More;
 use Data::Dumper;
 
 BEGIN {
-    use_ok('Method::Traits');
     # load from t/lib
     use_ok('DB::Binder::Trait::Provider');
     #use_ok('DB::Binder::Trait::Handler');
@@ -24,9 +23,9 @@ BEGIN {
     use strict;
     use warnings;
 
-    use Method::Traits 'DB::Binder::Trait::Provider';
+    use decorators from => 'DB::Binder::Trait::Provider';
 
-    our @ISA = ('UNIVERSAL::Object');
+    use parent 'UNIVERSAL::Object';
 
     sub id   : PrimaryKey;
     sub name : Col;
@@ -39,9 +38,9 @@ BEGIN {
     use strict;
     use warnings;
 
-    use Method::Traits 'DB::Binder::Trait::Provider';
+    use decorators from => 'DB::Binder::Trait::Provider';
 
-    our @ISA = ('UNIVERSAL::Object');
+    use parent 'UNIVERSAL::Object';
 
     sub id   : PrimaryKey;
     sub body : Col;
@@ -53,9 +52,9 @@ BEGIN {
     use strict;
     use warnings;
 
-    use Method::Traits 'DB::Binder::Trait::Provider';
+    use decorators from => 'DB::Binder::Trait::Provider';
 
-    our @ISA = ('UNIVERSAL::Object');
+    use parent 'UNIVERSAL::Object';
 
     sub BUILDARGS {
         my $class = shift;

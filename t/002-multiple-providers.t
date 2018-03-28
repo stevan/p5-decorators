@@ -39,7 +39,7 @@ sure the mechanism can do that.
     use strict;
     use warnings;
 
-    use Method::Traits qw[
+    use decorators from => qw[
         Bar::Trait::Provider
         Baz::Trait::Provider
     ];

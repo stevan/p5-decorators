@@ -6,7 +6,7 @@ use warnings;
 use Test::More;
 
 BEGIN {
-	use_ok('Method::Traits');
+	use_ok('decorators', ());
 }
 
 done_testing;

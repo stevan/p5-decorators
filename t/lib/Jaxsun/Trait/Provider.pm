@@ -3,6 +3,9 @@ package # hide from PAUSE
 use strict;
 use warnings;
 
-sub JSONProperty { () }
+use decorators;
+use decorators::from ':for_providers';
+
+sub JSONProperty : TagMethod { () }
 
 1;

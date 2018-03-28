@@ -3,14 +3,15 @@ package # hide from PAUSE
 use strict;
 use warnings;
 
-use Method::Traits ':for_providers';
+use decorators;
+use decorators::from ':for_providers';
 
-sub PrimaryKey : OverwritesMethod {
+sub PrimaryKey : OverwriteMethod {
     my ($meta, $method, $column_name) = @_;
     Col($meta, $method, $column_name);
 }
 
-sub Col : OverwritesMethod {
+sub Col : OverwriteMethod {
     my ($meta, $method, $column_name) = @_;
 
     my $method_name = $method->name;
@@ -25,7 +26,7 @@ sub Col : OverwritesMethod {
     $meta->add_method( $method_name, sub { $_[0]->{ $column_name } } );
 }
 
-sub HasOne : OverwritesMethod  {
+sub HasOne : OverwriteMethod  {
     my ($meta, $method, $related_class, $column_name) = @_;
 
     my $method_name = $method->name;
@@ -40,7 +41,7 @@ sub HasOne : OverwritesMethod  {
     $meta->add_method( $method_name, sub { $_[0]->{ $column_name } } );
 }
 
-sub HasMany : OverwritesMethod {
+sub HasMany : OverwriteMethod {
     my ($meta, $method, $related_class, $related_column_name) = @_;
 
     my $method_name = $method->name;

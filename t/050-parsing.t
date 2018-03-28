@@ -29,7 +29,7 @@ This is a simple test using a single provider ...
     use strict;
     use warnings;
 
-    use Method::Traits 'Bar::Trait::Provider';
+    use decorators from => 'Bar::Trait::Provider';
 
     sub new { bless +{} => $_[0] }
 

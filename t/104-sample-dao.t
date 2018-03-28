@@ -9,10 +9,8 @@ use Test::More;
 use Data::Dumper;
 
 BEGIN {
-    use_ok('Method::Traits');
     # load from t/lib
     use_ok('DAO::Trait::Provider');
-    use_ok('Accessor::Trait::Provider');
 }
 
 =pod
@@ -20,26 +18,27 @@ BEGIN {
 =cut
 
 BEGIN {
-    package Person;
-    use strict;
-    use warnings;
+    package Person {
+        use strict;
+        use warnings;
 
-    use Method::Traits 'Accessor::Trait::Provider';
+        use decorators ':accessors';
 
-    our @ISA = ('UNIVERSAL::Object');
-    our %HAS = (
-        id   => sub {},
-        name => sub { "" },
-    );
+        use parent 'UNIVERSAL::Object';
+        use slots (
+            id   => sub {},
+            name => sub { "" },
+        );
 
-    sub id   : Accessor(ro => 'id');
-    sub name : Accessor(rw => 'name');
+        sub id   : ro;
+        sub name : rw;
+    }
 
     package My::DAO::PeopleDB {
         use strict;
         use warnings;
 
-        use Method::Traits 'DAO::Trait::Provider';
+        use decorators from => 'DAO::Trait::Provider';
 
         sub find_name_by_id : FindOne(
             'SELECT name FROM Person WHERE id = ?',
