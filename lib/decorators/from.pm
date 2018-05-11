@@ -9,6 +9,7 @@ our $AUTHORITY = 'cpan:STEVAN';
 
 use Carp            ();
 use Scalar::Util    ();
+use List::Util      ();
 use MOP             (); # this is how we do most of our work
 use Module::Runtime (); # decorator provider loading
 
@@ -54,7 +55,8 @@ sub import_into {
     Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
 
     my $trait_role = MOP::Role->new( $package.'::__DECORATORS__' );
-    $trait_role->set_roles( @providers );
+    my @roles = $trait_role->roles;
+    $trait_role->set_roles( List::Util::uniq( @roles, @providers ) );
 
     use Data::Dumper;
 
