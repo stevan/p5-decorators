@@ -82,6 +82,8 @@ sub import_into {
 
                 $h or die 'This should never happen, as we have already checked this above ^^';
 
+                next if $h->has_code_attributes('TagMethod');
+
                 $h->body->( $role, $method, @{ $attribute->args || [] } );
 
                 if ( $h->has_code_attributes('OverwriteMethod') ) {
