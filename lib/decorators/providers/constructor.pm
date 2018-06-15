@@ -167,7 +167,7 @@ to a set of given slots. This is useful for maintaining encapsulation
 for things like a private slot with a different public name.
 
     # declare a slot with a private name
-    has _bar => sub {};
+    use slots (_bar => sub {});
 
     # map the `foo` key to the `_bar` slot
     sub BUILDARGS : strict( foo => _bar );
@@ -177,7 +177,7 @@ you wish to have an optional parameter, simply follow the parameter
 name with a question mark, like so:
 
     # declare a slot with a private name
-    has _bar => sub {};
+    use slots (_bar => sub {});
 
     # the `foo` key is optional, but if
     # given, will store in the `_bar` slot
@@ -186,7 +186,6 @@ name with a question mark, like so:
 If you wish to accept parameters for your superclass's constructor
 but do not want to specify storage location because of encapsulation
 concerns, simply use the C<super> designator, like so:
-
 
     # map the `foo` key to the local `_bar` slot
     # with the `bar` key, let the superclass decide ...
@@ -202,6 +201,5 @@ all, then simply do this.
 
 And the constructor will throw an exception if any arguments at
 all are passed in.
-
 
 =cut

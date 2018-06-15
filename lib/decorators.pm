@@ -112,11 +112,6 @@ __END__
 
 =pod
 
-=head1 UNDER CONSTRUCTION
-
-This module is still heavily under construction and there is a high likielihood
-that the details will change, bear that in mind if you choose to use it.
-
 =head1 DESCRIPTION
 
 Decorators are subroutines that are run at compile time to modify the
@@ -136,13 +131,12 @@ are just packages containing decorator subroutines, and the class in
 which you intend to apply the decorators.
 
 This is done by passing in the provider package name when using
-the L<decorators::from> package, like so:
+the L<decorators> package, like so:
 
     package My::Class;
-    use decorators;
-    use decorators::from 'My::Provider';
+    use decorators 'My::Provider';
 
-This will make available all the decorators in F<My::Provider>
+This will make available, all the decorators in F<My::Provider>
 for use inside F<My::Class>.
 
 =head2 How are decorators associated?
@@ -156,7 +150,7 @@ providers.
 This means that in the following code:
 
     package My::Class;
-    use decorators::from 'My::Provider';
+    use decorators 'My::Provider';
 
     sub foo : SomeTrait { ... }
 

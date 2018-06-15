@@ -183,6 +183,23 @@ __END__
 
 =pod
 
+=head1 SYNOPSIS
+
+  use decorators ':accessors';
+
+  sub foo       : ro;      # infer the 'foo' slot name
+  sub get_foo   : ro;      # infer the 'foo' slot name ignoring the 'get_'
+  sub test_zero : ro(foo); # specify the 'foo' slot name explcitly
+
+  sub bar     : rw;        # infer the 'bar' slot name
+  sub rw_bar  : rw(bar);   # specity the 'bar' slot name explcitly
+  sub set_bar : wo;        # infer the 'bar' name ignoring the 'set_'
+
+  sub _baz    : ro;        # infer the '_baz' name
+  sub baz     : rw(_);     # infer the private slot name (prefix with '_')
+  sub set_baz : wo(_);     # infer the private slot name (prefix with '_') ignoring the 'set_'
+  sub get_baz : ro(_);     # infer the private slot name (prefix with '_') ignoring the 'get_'
+
 =head1 DESCRIPTION
 
 =over 4
@@ -196,7 +213,7 @@ name of the method that the trait is being applied to.
     sub foo : ro;
     sub foo : ro(_bar);
 
-If the C<$slot_name> is simply an underscore (C<_>) then this 
+If the C<$slot_name> is simply an underscore (C<_>) then this
 decorator will assume the slot name is the same name as the subroutine
 only with an underscore prefix. This means that this:
 
@@ -225,7 +242,7 @@ name of the method that the trait is being applied to.
     sub foo : rw;
     sub foo : rw(_foo);
 
-If the C<$slot_name> is simply an underscore (C<_>) then this 
+If the C<$slot_name> is simply an underscore (C<_>) then this
 decorator will assume the slot name is the same name as the subroutine
 only with an underscore prefix. This means that this:
 
@@ -254,7 +271,7 @@ name of the method that the trait is being applied to.
     sub foo : wo;
     sub foo : wo(_foo);
 
-If the C<$slot_name> is simply an underscore (C<_>) then this 
+If the C<$slot_name> is simply an underscore (C<_>) then this
 decorator will assume the slot name is the same name as the subroutine
 only with an underscore prefix. This means that this:
 
@@ -283,7 +300,7 @@ name of the method that the trait is being applied to.
     sub foo : predicate;
     sub foo : predicate(_foo);
 
-If the C<$slot_name> is simply an underscore (C<_>) then this 
+If the C<$slot_name> is simply an underscore (C<_>) then this
 decorator will assume the slot name is the same name as the subroutine
 only with an underscore prefix. This means that this:
 
@@ -291,7 +308,7 @@ only with an underscore prefix. This means that this:
 
 Is the equivalent of writing this:
 
-    sub foo : predicate(_foo);    
+    sub foo : predicate(_foo);
 
 If the method name is prefixed with C<has_>, then this trait will
 infer that the slot name intended is the remainder of the method's
@@ -312,7 +329,7 @@ name of the method that the trait is being applied to.
     sub foo : clearer;
     sub foo : clearer(_foo);
 
-If the C<$slot_name> is simply an underscore (C<_>) then this 
+If the C<$slot_name> is simply an underscore (C<_>) then this
 decorator will assume the slot name is the same name as the subroutine
 only with an underscore prefix. This means that this:
 
