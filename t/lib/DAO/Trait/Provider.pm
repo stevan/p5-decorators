@@ -3,8 +3,7 @@ package # hide from PAUSE
 use strict;
 use warnings;
 
-use decorators;
-use decorators::from ':for_providers';
+use decorators ':for_providers';
 
 sub FindOne : OverwriteMethod {
     my ($meta, $method, $SQL, %opts) = @_;
