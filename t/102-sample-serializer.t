@@ -32,10 +32,10 @@ BEGIN {
 	use decorators 'Jaxsun::Trait::Provider';
 
 	use parent 'UNIVERSAL::Object';
-	use slots (
+    our %HAS; BEGIN { %HAS = (
 		first_name => sub { "" },
 		last_name  => sub { "" },
-	);
+	)};
 
 	sub first_name : JSONProperty {
 		my $self = shift;

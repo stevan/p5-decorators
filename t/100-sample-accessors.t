@@ -25,10 +25,10 @@ BEGIN {
     use decorators ':accessors';
 
     use parent 'UNIVERSAL::Object';
-    use slots (
+    our %HAS; BEGIN { %HAS = (
         fname => sub { "" },
         lname => sub { "" },
-    );
+    )};
 
     sub first_name : ro(fname);
     sub last_name  : rw(lname);
@@ -41,9 +41,10 @@ BEGIN {
     use decorators ':accessors';
 
     use parent -norequire => 'Person';
-    use slots(
+    our %HAS; BEGIN { %HAS = (
+        %Person::HAS,
         title => sub { "" },
-    );
+    )};
 
     sub title : ro;
 }

@@ -27,11 +27,11 @@ BEGIN {
     use decorators qw[ :accessors Getopt::Trait::Provider ];
 
     use parent 'UNIVERSAL::Object';
-    use slots (
+    our %HAS; BEGIN { %HAS = (
         name    => sub { __PACKAGE__ },
         verbose => sub { 0 },
         debug   => sub { 0 },
-    );
+    )};
 
     sub app_name   : Opt('name=s')    ro(name);
     sub is_verbose : Opt('v|verbose') ro(verbose);

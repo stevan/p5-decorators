@@ -25,10 +25,10 @@ BEGIN {
         use decorators ':accessors';
 
         use parent 'UNIVERSAL::Object';
-        use slots (
+        our %HAS; BEGIN { %HAS = (
             id   => sub {},
             name => sub { "" },
-        );
+        )};
 
         sub id   : ro;
         sub name : rw;
