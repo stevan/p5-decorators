@@ -17,19 +17,19 @@ This is a simple test using a single provider ...
 =cut
 
 {
-    package Bar::Trait::Provider;
+    package Bar::Decorator::Provider;
     use strict;
     use warnings;
 
-    our $TRAIT_USED = 0;
+    our $DECORATOR_USED = 0;
 
-    sub Bar { $TRAIT_USED++; return }
+    sub Bar { $DECORATOR_USED++; return }
 
     package Foo;
     use strict;
     use warnings;
 
-    use decorators from => 'Bar::Trait::Provider';
+    use decorators 'Bar::Decorator::Provider';
 
     sub new { bless +{} => $_[0] }
 
@@ -41,7 +41,7 @@ This is a simple test using a single provider ...
 }
 
 BEGIN {
-    is($Bar::Trait::Provider::TRAIT_USED, 1, '...the trait was used in BEGIN');
+    is($Bar::Decorator::Provider::DECORATOR_USED, 1, '...the trait was used in BEGIN');
     can_ok('Foo', 'MODIFY_CODE_ATTRIBUTES');
     can_ok('Foo', 'FETCH_CODE_ATTRIBUTES');
 }

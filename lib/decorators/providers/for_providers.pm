@@ -4,7 +4,7 @@ package decorators::providers::for_providers;
 use strict;
 use warnings;
 
-our $VERSION   = '0.08';
+our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
 sub OverwriteMethod { () }

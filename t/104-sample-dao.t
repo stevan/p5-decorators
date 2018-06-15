@@ -38,7 +38,7 @@ BEGIN {
         use strict;
         use warnings;
 
-        use decorators from => 'DAO::Trait::Provider';
+        use decorators 'DAO::Trait::Provider';
 
         sub find_name_by_id : FindOne(
             'SELECT name FROM Person WHERE id = ?',

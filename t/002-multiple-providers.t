@@ -19,29 +19,29 @@ sure the mechanism can do that.
 =cut
 
 {
-    package Bar::Trait::Provider;
+    package Bar::Decorator::Provider;
     use strict;
     use warnings;
 
-    our $TRAIT_USED = 0;
+    our $DECORATOR_USED = 0;
 
-    sub Bar { $TRAIT_USED++; return }
+    sub Bar { $DECORATOR_USED++; return }
 
-    package Baz::Trait::Provider;
+    package Baz::Decorator::Provider;
     use strict;
     use warnings;
 
-    our $TRAIT_USED = 0;
+    our $DECORATOR_USED = 0;
 
-    sub Baz { $TRAIT_USED++; return }
+    sub Baz { $DECORATOR_USED++; return }
 
     package Foo;
     use strict;
     use warnings;
 
-    use decorators from => qw[
-        Bar::Trait::Provider
-        Baz::Trait::Provider
+    use decorators qw[
+        Bar::Decorator::Provider
+        Baz::Decorator::Provider
     ];
 
     sub new { bless +{} => $_[0] }
@@ -53,8 +53,8 @@ sure the mechanism can do that.
 }
 
 BEGIN {
-    is($Bar::Trait::Provider::TRAIT_USED, 2, '...the trait was used in BEGIN');
-    is($Baz::Trait::Provider::TRAIT_USED, 2, '...the trait was used in BEGIN');
+    is($Bar::Decorator::Provider::DECORATOR_USED, 2, '...the decorator was used in BEGIN');
+    is($Baz::Decorator::Provider::DECORATOR_USED, 2, '...the decorator was used in BEGIN');
     can_ok('Foo', 'MODIFY_CODE_ATTRIBUTES');
     can_ok('Foo', 'FETCH_CODE_ATTRIBUTES');
 }

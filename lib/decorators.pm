@@ -101,7 +101,6 @@ sub import_into {
     );
 
     if ( @args ) {
-        shift @args if $args[0] eq 'from';
         require decorators::from;
         decorators::from->import_into( $package, @args )
     }

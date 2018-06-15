@@ -29,7 +29,7 @@ BEGIN {
 	use strict;
 	use warnings;
 
-	use decorators from => 'Jaxsun::Trait::Provider';
+	use decorators 'Jaxsun::Trait::Provider';
 
 	use parent 'UNIVERSAL::Object';
 	use slots (

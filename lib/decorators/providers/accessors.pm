@@ -194,6 +194,16 @@ C<$slot_name> can optionally be specified, otherwise it will use the
 name of the method that the trait is being applied to.
 
     sub foo : ro;
+    sub foo : ro(_bar);
+
+If the C<$slot_name> is simply an underscore (C<_>) then this 
+decorator will assume the slot name is the same name as the subroutine
+only with an underscore prefix. This means that this:
+
+    sub foo : ro(_);
+
+Is the equivalent of writing this:
+
     sub foo : ro(_foo);
 
 If the method name is prefixed with C<get_>, then this trait will
@@ -215,6 +225,16 @@ name of the method that the trait is being applied to.
     sub foo : rw;
     sub foo : rw(_foo);
 
+If the C<$slot_name> is simply an underscore (C<_>) then this 
+decorator will assume the slot name is the same name as the subroutine
+only with an underscore prefix. This means that this:
+
+    sub foo : rw(_);
+
+Is the equivalent of writing this:
+
+    sub foo : rw(_foo);
+
 If the method name is prefixed with C<set_>, then this trait will
 infer that the slot name intended is the remainder of the method's
 name, minus the C<set_> prefix, such that this:
@@ -232,6 +252,16 @@ C<$slot_name> can optionally be specified, otherwise it will use the
 name of the method that the trait is being applied to.
 
     sub foo : wo;
+    sub foo : wo(_foo);
+
+If the C<$slot_name> is simply an underscore (C<_>) then this 
+decorator will assume the slot name is the same name as the subroutine
+only with an underscore prefix. This means that this:
+
+    sub foo : wo(_);
+
+Is the equivalent of writing this:
+
     sub foo : wo(_foo);
 
 If the method name is prefixed with C<set_>, then this trait will
@@ -253,6 +283,16 @@ name of the method that the trait is being applied to.
     sub foo : predicate;
     sub foo : predicate(_foo);
 
+If the C<$slot_name> is simply an underscore (C<_>) then this 
+decorator will assume the slot name is the same name as the subroutine
+only with an underscore prefix. This means that this:
+
+    sub foo : predicate(_);
+
+Is the equivalent of writing this:
+
+    sub foo : predicate(_foo);    
+
 If the method name is prefixed with C<has_>, then this trait will
 infer that the slot name intended is the remainder of the method's
 name, minus the C<has_> prefix, such that this:
@@ -270,6 +310,16 @@ C<$slot_name> can optionally be specified, otherwise it will use the
 name of the method that the trait is being applied to.
 
     sub foo : clearer;
+    sub foo : clearer(_foo);
+
+If the C<$slot_name> is simply an underscore (C<_>) then this 
+decorator will assume the slot name is the same name as the subroutine
+only with an underscore prefix. This means that this:
+
+    sub foo : clearer(_);
+
+Is the equivalent of writing this:
+
     sub foo : clearer(_foo);
 
 If the method name is prefixed with C<clear_>, then this trait will

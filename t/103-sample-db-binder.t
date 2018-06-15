@@ -23,7 +23,7 @@ BEGIN {
     use strict;
     use warnings;
 
-    use decorators from => 'DB::Binder::Trait::Provider';
+    use decorators 'DB::Binder::Trait::Provider';
 
     use parent 'UNIVERSAL::Object';
 
@@ -38,7 +38,7 @@ BEGIN {
     use strict;
     use warnings;
 
-    use decorators from => 'DB::Binder::Trait::Provider';
+    use decorators 'DB::Binder::Trait::Provider';
 
     use parent 'UNIVERSAL::Object';
 
@@ -52,7 +52,7 @@ BEGIN {
     use strict;
     use warnings;
 
-    use decorators from => 'DB::Binder::Trait::Provider';
+    use decorators 'DB::Binder::Trait::Provider';
 
     use parent 'UNIVERSAL::Object';
 
