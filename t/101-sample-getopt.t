@@ -24,8 +24,7 @@ BEGIN {
     use strict;
     use warnings;
 
-    use decorators ':accessors';
-    use decorators::from 'Getopt::Trait::Provider';
+    use decorators qw[ :accessors Getopt::Trait::Provider ];
 
     use parent 'UNIVERSAL::Object';
     use slots (
