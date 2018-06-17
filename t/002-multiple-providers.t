@@ -6,10 +6,6 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 
-BEGIN {
-    use_ok('MOP');
-}
-
 =pod
 
 This is a simple test using multiple providers
