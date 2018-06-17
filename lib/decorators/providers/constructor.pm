@@ -117,7 +117,7 @@ sub strict : OverwriteMethod {
                 %final = ( %$super_proto, %final );
             }
 
-            if ( keys %%$proto ) {
+            if ( keys %$proto ) {
 
                 #use Data::Dumper;
                 #warn Dumper +{
