@@ -70,7 +70,7 @@ sub strict : OverwriteMethod {
                 push @missing => $param unless exists $proto->{ $param };
             }
 
-            Carp::confess('Constructor for ('.$class_name.') missing (`'.(join '`, `' => @missing).'`) parameters, got (`'.(join '`, `' => sort keys $proto->%*).'`), expected (`'.(join '`, `' => @all).'`)')
+            Carp::confess('Constructor for ('.$class_name.') missing (`'.(join '`, `' => @missing).'`) parameters, got (`'.(join '`, `' => sort keys %$proto).'`), expected (`'.(join '`, `' => @all).'`)')
                 if @missing;
 
             my (%final, %super);
@@ -114,10 +114,10 @@ sub strict : OverwriteMethod {
             # inherit keys ...
             if ( keys %super ) {
                 my $super_proto = $self->next::method( %super );
-                %final = ( $super_proto->%*, %final );
+                %final = ( %$super_proto, %final );
             }
 
-            if ( keys $proto->%* ) {
+            if ( keys %%$proto ) {
 
                 #use Data::Dumper;
                 #warn Dumper +{
@@ -133,7 +133,7 @@ sub strict : OverwriteMethod {
                 #    }
                 #};
 
-                Carp::confess('Constructor for ('.$class_name.') got unrecognized parameters (`'.(join '`, `' => keys $proto->%*).'`)');
+                Carp::confess('Constructor for ('.$class_name.') got unrecognized parameters (`'.(join '`, `' => keys %$proto).'`)');
             }
 
             return \%final;
