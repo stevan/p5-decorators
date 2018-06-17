@@ -50,7 +50,8 @@ sub strict : OverwriteMethod {
         #     max_arity => $max_arity,
         # };
 
-        $meta->add_method('BUILDARGS' => sub ($self, @args) {
+        $meta->add_method('BUILDARGS' => sub {
+            my ($self, @args) = @_;
 
             my $arity = scalar @args;
 
