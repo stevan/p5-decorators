@@ -87,8 +87,9 @@ sub import_into {
                 $h->body->( $role, $method, @{ $attribute->args || [] } );
 
                 if ( $h->has_code_attributes('OverwriteMethod') ) {
-                    $method = $role->get_method( $method->name );
-                    Carp::croak('Failed to find new overwriten method ('.$method->name.') in class ('.$role->name.')')
+                    my $name = $method->name;
+                    $method = $role->get_method( $name );
+                    Carp::croak('Failed to find new overwriten method ('.$name.') in class ('.$role->name.')')
                         unless defined $method;
                 }
             }
