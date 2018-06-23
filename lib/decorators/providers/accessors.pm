@@ -21,7 +21,7 @@ sub ro : OverwriteMethod {
     my $slot_name;
     if ( $args[0] ) {
         if ( $args[0] eq '_' ) {
-            $slot_name = '_'.$method_name;
+            $slot_name = '_'.(($method_name =~ /^get_(.*)$/)[0] || $method_name);
         }
         else {
             $slot_name = shift @args;
@@ -85,7 +85,7 @@ sub wo : OverwriteMethod {
     my $slot_name;
     if ( $args[0] ) {
         if ( $args[0] eq '_' ) {
-            $slot_name = '_'.$method_name;
+            $slot_name = '_'.(($method_name =~ /^set_(.*)$/)[0] || $method_name);
         }
         else {
             $slot_name = shift @args;
@@ -121,7 +121,7 @@ sub predicate : OverwriteMethod {
     my $slot_name;
     if ( $args[0] ) {
         if ( $args[0] eq '_' ) {
-            $slot_name = '_'.$method_name;
+            $slot_name = '_'.(($method_name =~ /^has_(.*)$/)[0] || $method_name);
         }
         else {
             $slot_name = shift @args;
@@ -151,7 +151,7 @@ sub clearer : OverwriteMethod {
     my $slot_name;
     if ( $args[0] ) {
         if ( $args[0] eq '_' ) {
-            $slot_name = '_'.$method_name;
+            $slot_name = '_'.(($method_name =~ /^clear_(.*)$/)[0] || $method_name);
         }
         else {
             $slot_name = shift @args;
