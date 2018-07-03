@@ -54,10 +54,6 @@ sub import_into {
     # load the providers, and then ...
     Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
 
-    my $trait_role = MOP::Role->new( $package.'::__DECORATORS__' );
-    my @roles = $trait_role->roles;
-    $trait_role->set_roles( List::Util::uniq( @roles, @providers ) );
-
     use Data::Dumper;
 
     # TODO:
@@ -66,7 +62,16 @@ sub import_into {
     # expection.
     # - SL
     eval {
+        my $trait_role = MOP::Role->new( $package.'::__DECORATORS__' );
+
+        my @roles = $trait_role->roles;
+
+        $trait_role->set_roles( List::Util::uniq( @roles, @providers ) );
+
+        # Do we guard aginst this happening more than once?
+
         MOP::Util::compose_roles( $trait_role );
+
         1;
     } or do {
         die $@;
