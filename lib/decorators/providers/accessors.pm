@@ -13,7 +13,7 @@ use MOP::Util ();
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
-sub ro : OverwriteMethod {
+sub ro : CreateMethod {
     my ( $meta, $method, @args ) = @_;
 
     my $method_name = $method->name;
@@ -46,7 +46,7 @@ sub ro : OverwriteMethod {
     });
 }
 
-sub rw : OverwriteMethod {
+sub rw : CreateMethod {
     my ( $meta, $method, @args ) = @_;
 
     my $method_name = $method->name;
@@ -77,7 +77,7 @@ sub rw : OverwriteMethod {
     });
 }
 
-sub wo : OverwriteMethod {
+sub wo : CreateMethod {
     my ( $meta, $method, @args ) = @_;
 
     my $method_name = $method->name;
@@ -113,7 +113,7 @@ sub wo : OverwriteMethod {
     });
 }
 
-sub predicate : OverwriteMethod {
+sub predicate : CreateMethod {
     my ( $meta, $method, @args ) = @_;
 
     my $method_name = $method->name;
@@ -143,7 +143,7 @@ sub predicate : OverwriteMethod {
     $meta->add_method( $method_name => sub { defined $_[0]->{ $slot_name } } );
 }
 
-sub clearer : OverwriteMethod {
+sub clearer : CreateMethod {
     my ( $meta, $method, @args ) = @_;
 
     my $method_name = $method->name;

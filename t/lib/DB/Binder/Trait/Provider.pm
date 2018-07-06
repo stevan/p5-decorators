@@ -5,12 +5,12 @@ use warnings;
 
 use decorators ':for_providers';
 
-sub PrimaryKey : OverwriteMethod {
+sub PrimaryKey : CreateMethod {
     my ($meta, $method, $column_name) = @_;
     Col($meta, $method, $column_name);
 }
 
-sub Col : OverwriteMethod {
+sub Col : CreateMethod {
     my ($meta, $method, $column_name) = @_;
 
     my $method_name = $method->name;
@@ -25,7 +25,7 @@ sub Col : OverwriteMethod {
     $meta->add_method( $method_name, sub { $_[0]->{ $column_name } } );
 }
 
-sub HasOne : OverwriteMethod  {
+sub HasOne : CreateMethod  {
     my ($meta, $method, $related_class, $column_name) = @_;
 
     my $method_name = $method->name;
@@ -40,7 +40,7 @@ sub HasOne : OverwriteMethod  {
     $meta->add_method( $method_name, sub { $_[0]->{ $column_name } } );
 }
 
-sub HasMany : OverwriteMethod {
+sub HasMany : CreateMethod {
     my ($meta, $method, $related_class, $related_column_name) = @_;
 
     my $method_name = $method->name;

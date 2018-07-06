@@ -5,7 +5,7 @@ use warnings;
 
 use decorators ':for_providers';
 
-sub FindOne : OverwriteMethod {
+sub FindOne : CreateMethod {
     my ($meta, $method, $SQL, %opts) = @_;
 
     my $method_name = $method->name;
@@ -37,7 +37,7 @@ sub FindOne : OverwriteMethod {
     });
 }
 
-sub FindMany : OverwriteMethod {
+sub FindMany : CreateMethod {
     my ($meta, $method, $SQL, %opts) = @_;
 
     my $method_name = $method->name;

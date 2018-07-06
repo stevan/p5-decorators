@@ -13,7 +13,7 @@ use MOP::Util ();
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
-sub strict : OverwriteMethod {
+sub strict : CreateMethod {
     my ( $meta, $method, %signature ) = @_;
 
     # XXX:

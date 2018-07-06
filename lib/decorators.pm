@@ -78,15 +78,22 @@ sub import_into {
             return @unhandled if @unhandled;
 
             foreach my $attribute ( @attributes ) {
-                my $h = $decorators->get_method( $attribute->name );
+                my $d = $decorators->get_method( $attribute->name );
 
-                $h or die 'This should never happen, as we have already checked this above ^^';
+                $d or die 'This should never happen, as we have already checked this above ^^';
 
-                next if $h->has_code_attributes('TagMethod');
+                # we know that this will be a no-op,
+                # so, we no-op and go to the next one
+                next if $d->has_code_attributes('TagMethod');
 
-                $h->body->( $role, $method, @{ $attribute->args || [] } );
+                if ( $d->has_code_attributes('CreateMethod') ) {
+                    $role->requires_method( $method->name )
+                        or die 'The method ('.$method->name.') must be bodyless for a `CreateMethod` decorator ('.$d->name.') to be applied to it';
+                }
 
-                if ( $h->has_code_attributes('OverwriteMethod') ) {
+                $d->body->( $role, $method, @{ $attribute->args || [] } );
+
+                if ( $d->has_code_attributes('WrapMethod') || $d->has_code_attributes('CreateMethod') ) {
                     my $name = $method->name;
                     $method = $role->get_method( $name );
                     Carp::croak('Failed to find new overwriten method ('.$name.') in class ('.$role->name.')')

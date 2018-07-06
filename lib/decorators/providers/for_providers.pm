@@ -7,8 +7,9 @@ use warnings;
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
-sub OverwriteMethod { () }
-sub TagMethod       { () }
+sub CreateMethod { () }
+sub WrapMethod   { () }
+sub TagMethod    { () }
 
 1;
 
@@ -23,16 +24,23 @@ for people who are writing decorator providers.
 
 =head1 TRAITS
 
-=head2 OverwriteMethod
+=head2 CreateMethod
 
-This means that the decorator handler will overwrite the method with
-another copy. This means we need to re-fetch the method before we run
-additional decorator handlers.
+This means that the decorator handler will create the method exclusivily.
+This means the method must be a bodyless method and in a given set of
+decorators, there can only be one C<CreateMethod> decorator and it will
+be executed first.
+
+=head2 WrapMethod
+
+This means that the decorator handle will override, or wrap, the method.
+This means the method must exist already.
 
 =head2 TagMethod
 
 This means that the decorator is really just a tag added to the method.
 These typically will be processed at runtime through introspection, so
-can simply be no-op subroutines.
+can simply be no-op subroutines. As with C<WrapMethod> this means the
+method must exist already.
 
 =cut
