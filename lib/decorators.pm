@@ -93,7 +93,7 @@ sub import_into {
                 next if $d->has_code_attributes('TagMethod');
 
                 if ( $d->has_code_attributes('CreateMethod') ) {
-                    $role->requires_method( $method->name )
+                    $method->is_required
                         or die 'The method ('.$method->name.') must be bodyless for a `CreateMethod` decorator ('.$d->name.') to be applied to it';
                 }
 
