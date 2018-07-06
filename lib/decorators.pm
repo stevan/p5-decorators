@@ -77,6 +77,12 @@ sub import_into {
             # return the bad decorators as strings, as expected by attributes ...
             return @unhandled if @unhandled;
 
+            # TODO:
+            # fetch all the decorator objects, then sort them
+            # such that a CreateMethod is first, also check
+            # to make sure there is only one CreateMethod
+            # in the set.
+
             foreach my $attribute ( @attributes ) {
                 my $d = $decorators->get_method( $attribute->name );
 
