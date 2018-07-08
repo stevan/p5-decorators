@@ -58,11 +58,16 @@ sub import_into {
         MODIFY_CODE_ATTRIBUTES => sub {
             my ($pkg, $code, @attrs) = @_;
 
-            my $role       = MOP::Role->new( $pkg );
-            my $method     = MOP::Method->new( $code );
-            my @attributes = map MOP::Method::Attribute->new( $_ ), @attrs;
+            my $role       = MOP::Role->new( $pkg );    # the actual Package that Perl is talking about ...
+            my $method     = MOP::Method->new( $code ); # the actual CV that Perl is talking about ...
+            my @attributes = map MOP::Method::Attribute->new( $_ ), @attrs; # inflate the attributes ...
 
+            # TODO:
+            # This needs an abstraction around it,
+            # my $decorators = decorators::for( $role );
             my $decorators = MOP::Role->new( $role->name.'::__DECORATORS__' );
+            # preparing the attrbutes returns the ones that are unhandled ...
+            # my @unhandled = map $_->original, $decorators->filter_unhandled( @attributes );
             my @unhandled  = map $_->original, grep !$decorators->has_method( $_->name ), @attributes;
 
             #use Data::Dumper;
@@ -77,11 +82,13 @@ sub import_into {
             # return the bad decorators as strings, as expected by attributes ...
             return @unhandled if @unhandled;
 
-            # TODO:
-            # fetch all the decorator objects, then sort them
-            # such that a CreateMethod is first, also check
-            # to make sure there is only one CreateMethod
-            # in the set.
+            # This would:
+            #   fetch all the decorator objects, then sort them
+            #   such that a CreateMethod is first, also check
+            #   to make sure there is only one CreateMethod
+            #   in the set.
+            # $decorators->process_attributes( @attributes );
+            #   and it would include the code below ...
 
             foreach my $attribute ( @attributes ) {
                 my $d = $decorators->get_method( $attribute->name );
