@@ -11,6 +11,8 @@ use Carp         ();
 use Scalar::Util ();
 use MOP          (); # this is how we do most of our work
 
+use MOPx::Decorators;
+
 ## --------------------------------------------------------
 ## Importers
 ## --------------------------------------------------------
@@ -65,10 +67,10 @@ sub import_into {
             # TODO:
             # This needs an abstraction around it,
             # my $decorators = decorators::for( $role );
-            my $decorators = MOP::Role->new( $role->name.'::__DECORATORS__' );
+            my $decorators = MOPx::Decorators->new( namespace => $role->name );
             # preparing the attrbutes returns the ones that are unhandled ...
             # my @unhandled = map $_->original, $decorators->filter_unhandled( @attributes );
-            my @unhandled  = map $_->original, grep !$decorators->has_method( $_->name ), @attributes;
+            my @unhandled  = map $_->original, grep !$decorators->has_decorator( $_->name ), @attributes;
 
             #use Data::Dumper;
             #warn Dumper {
@@ -91,7 +93,7 @@ sub import_into {
             #   and it would include the code below ...
 
             foreach my $attribute ( @attributes ) {
-                my $d = $decorators->get_method( $attribute->name );
+                my $d = $decorators->get_decorator( $attribute->name );
 
                 $d or die 'This should never happen, as we have already checked this above ^^';
 

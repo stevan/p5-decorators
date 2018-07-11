@@ -13,6 +13,8 @@ use List::Util      ();
 use MOP             (); # this is how we do most of our work
 use Module::Runtime (); # decorator provider loading
 
+use MOPx::Decorators;
+
 # ...
 
 use decorators::providers::for_providers;
@@ -62,16 +64,8 @@ sub import_into {
     # expection.
     # - SL
     eval {
-        my $trait_role = MOP::Role->new( $package.'::__DECORATORS__' );
-
-        my @roles = $trait_role->roles;
-
-        $trait_role->set_roles( List::Util::uniq( @roles, @providers ) );
-
-        # Do we guard aginst this happening more than once?
-
-        MOP::Util::compose_roles( $trait_role );
-
+        my $trait_role = MOPx::Decorators->new( namespace => $package );
+        $trait_role->add_providers( @providers );
         1;
     } or do {
         die $@;
