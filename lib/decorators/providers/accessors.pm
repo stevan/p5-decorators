@@ -13,7 +13,7 @@ use MOP::Util ();
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
-sub ro : CreateMethod {
+sub ro : Decorator : CreateMethod {
     my ( $meta, $method, @args ) = @_;
 
     my $method_name = $method->name;
@@ -46,7 +46,7 @@ sub ro : CreateMethod {
     });
 }
 
-sub rw : CreateMethod {
+sub rw : Decorator : CreateMethod {
     my ( $meta, $method, @args ) = @_;
 
     my $method_name = $method->name;
@@ -77,7 +77,7 @@ sub rw : CreateMethod {
     });
 }
 
-sub wo : CreateMethod {
+sub wo : Decorator : CreateMethod {
     my ( $meta, $method, @args ) = @_;
 
     my $method_name = $method->name;
@@ -113,7 +113,7 @@ sub wo : CreateMethod {
     });
 }
 
-sub predicate : CreateMethod {
+sub predicate : Decorator : CreateMethod {
     my ( $meta, $method, @args ) = @_;
 
     my $method_name = $method->name;
@@ -143,7 +143,7 @@ sub predicate : CreateMethod {
     $meta->add_method( $method_name => sub { defined $_[0]->{ $slot_name } } );
 }
 
-sub clearer : CreateMethod {
+sub clearer : Decorator : CreateMethod {
     my ( $meta, $method, @args ) = @_;
 
     my $method_name = $method->name;

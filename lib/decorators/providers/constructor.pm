@@ -13,7 +13,7 @@ use MOP::Util ();
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
-sub strict : CreateMethod {
+sub strict : Decorator : CreateMethod {
     my ( $meta, $method, %signature ) = @_;
 
     # XXX:

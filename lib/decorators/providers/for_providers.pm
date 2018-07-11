@@ -11,6 +11,8 @@ sub CreateMethod { () }
 sub WrapMethod   { () }
 sub TagMethod    { () }
 
+sub Decorator { () }
+
 1;
 
 __END__
@@ -42,5 +44,9 @@ This means that the decorator is really just a tag added to the method.
 These typically will be processed at runtime through introspection, so
 can simply be no-op subroutines. As with C<WrapMethod> this means the
 method must exist already.
+
+=head2 Decorator
+
+This is a C<TagMethod> meant to mark a subroutine as a Decorator.
 
 =cut
