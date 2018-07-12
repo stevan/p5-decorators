@@ -15,11 +15,13 @@ use List::Util ();
 use constant DECORATOR_SUB_NAMESPACE => '__DECORATORS__';
 
 use parent 'UNIVERSAL::Object::Immutable';
-use slots (
-    namespace => sub {},
-    # internal data ...
-    _role => sub {},
-);
+our %HAS; BEGIN {
+    %HAS = (
+        namespace => sub {},
+        # internal data ...
+        _role => sub {},
+    )
+}
 
 sub BUILD {
     my ($self, $params) = @_;
