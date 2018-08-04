@@ -4,8 +4,7 @@ package decorators::providers::accessors;
 use strict;
 use warnings;
 
-use decorators;
-use decorators::from ':for_providers';
+use decorators ':for_providers';
 
 use Carp      ();
 use MOP::Util ();
