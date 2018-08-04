@@ -11,13 +11,17 @@ sub CreateMethod { () }
 sub WrapMethod   { () }
 sub TagMethod    { () }
 
-sub Decorator { () }
+sub Decorator    { () }
 
 1;
 
 __END__
 
 =pod
+
+=head1 SYNOPSIS
+
+  use decorators ':for_providers';
 
 =head1 DESCRIPTION
 

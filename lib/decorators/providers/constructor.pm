@@ -154,6 +154,20 @@ __END__
 
 =pod
 
+=head1 SYNOPSIS
+
+  use decorators ':constructor';
+
+  # accepts /no/ arguments
+  sub BUILDARGS : strict;
+
+  # accept *only* the following arguments
+  sub BUILDARGS : strict(
+      foo  => _foo,      # required key
+      bar? => _bar       # optional
+      baz? => super(baz) # delegate to the superclass
+  );
+
 =head1 DESCRIPTION
 
 =over 4
