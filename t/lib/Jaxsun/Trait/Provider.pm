@@ -5,6 +5,6 @@ use warnings;
 
 use decorators ':for_providers';
 
-sub JSONProperty : TagMethod { () }
+sub JSONProperty : Decorator : TagMethod { () }
 
 1;

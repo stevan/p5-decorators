@@ -17,9 +17,11 @@ This is a simple test using a single provider ...
     use strict;
     use warnings;
 
+    use decorators ':for_providers';
+
     our $DECORATOR_USED = 0;
 
-    sub Bar { $DECORATOR_USED++; return }
+    sub Bar : Decorator { $DECORATOR_USED++; return }
 
     package Foo;
     use strict;

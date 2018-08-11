@@ -19,17 +19,21 @@ sure the mechanism can do that.
     use strict;
     use warnings;
 
+    use decorators ':for_providers';
+
     our $DECORATOR_USED = 0;
 
-    sub Bar { $DECORATOR_USED++; return }
+    sub Bar : Decorator { $DECORATOR_USED++; return }
 
     package Baz::Decorator::Provider;
     use strict;
     use warnings;
 
+    use decorators ':for_providers';
+
     our $DECORATOR_USED = 0;
 
-    sub Baz { $DECORATOR_USED++; return }
+    sub Baz : Decorator { $DECORATOR_USED++; return }
 
     package Foo;
     use strict;

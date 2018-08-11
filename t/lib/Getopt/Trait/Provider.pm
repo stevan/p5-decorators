@@ -5,6 +5,6 @@ use warnings;
 
 use decorators ':for_providers';
 
-sub Opt : TagMethod { () }
+sub Opt : Decorator : TagMethod { () }
 
 1;

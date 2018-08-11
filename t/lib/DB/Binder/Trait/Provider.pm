@@ -5,12 +5,12 @@ use warnings;
 
 use decorators ':for_providers';
 
-sub PrimaryKey : CreateMethod {
+sub PrimaryKey : Decorator : CreateMethod {
     my ($meta, $method, $column_name) = @_;
     Col($meta, $method, $column_name);
 }
 
-sub Col : CreateMethod {
+sub Col : Decorator : CreateMethod {
     my ($meta, $method, $column_name) = @_;
 
     my $method_name = $method->name;
@@ -25,7 +25,7 @@ sub Col : CreateMethod {
     $meta->add_method( $method_name, sub { $_[0]->{ $column_name } } );
 }
 
-sub HasOne : CreateMethod  {
+sub HasOne : Decorator : CreateMethod  {
     my ($meta, $method, $related_class, $column_name) = @_;
 
     my $method_name = $method->name;
@@ -40,7 +40,7 @@ sub HasOne : CreateMethod  {
     $meta->add_method( $method_name, sub { $_[0]->{ $column_name } } );
 }
 
-sub HasMany : CreateMethod {
+sub HasMany : Decorator : CreateMethod {
     my ($meta, $method, $related_class, $related_column_name) = @_;
 
     my $method_name = $method->name;

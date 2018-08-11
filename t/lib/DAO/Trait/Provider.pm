@@ -5,7 +5,7 @@ use warnings;
 
 use decorators ':for_providers';
 
-sub FindOne : CreateMethod {
+sub FindOne : Decorator : CreateMethod {
     my ($meta, $method, $SQL, %opts) = @_;
 
     my $method_name = $method->name;
@@ -37,7 +37,7 @@ sub FindOne : CreateMethod {
     });
 }
 
-sub FindMany : CreateMethod {
+sub FindMany : Decorator : CreateMethod {
     my ($meta, $method, $SQL, %opts) = @_;
 
     my $method_name = $method->name;

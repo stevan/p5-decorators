@@ -13,7 +13,7 @@ package Entity::Traits::Provider {
 
     use decorators ':for_providers';
 
-    sub JSONParameter : TagMethod { () }
+    sub JSONParameter : Decorator : TagMethod { () }
 }
 
 package Service::Traits::Provider {
@@ -22,13 +22,13 @@ package Service::Traits::Provider {
 
     use decorators ':for_providers';
 
-    sub Path     : TagMethod { my ($meta, $method_name, $path) = @_; } # TODO
+    sub Path     : Decorator : TagMethod { my ($meta, $method_name, $path) = @_; } # TODO
 
-    sub GET      : TagMethod { my ($meta, $method_name) = @_; } # TODO
-    sub PUT      : TagMethod { my ($meta, $method_name) = @_; } # TODO
+    sub GET      : Decorator : TagMethod { my ($meta, $method_name) = @_; } # TODO
+    sub PUT      : Decorator : TagMethod { my ($meta, $method_name) = @_; } # TODO
 
-    sub Consumes : TagMethod { my ($meta, $method_name, $media_type) = @_; } # TODO
-    sub Produces : TagMethod { my ($meta, $method_name, $media_type) = @_; } # TODO
+    sub Consumes : Decorator : TagMethod { my ($meta, $method_name, $media_type) = @_; } # TODO
+    sub Produces : Decorator : TagMethod { my ($meta, $method_name, $media_type) = @_; } # TODO
 }
 
 # this is the entity class

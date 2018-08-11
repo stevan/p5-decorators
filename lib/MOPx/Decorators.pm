@@ -50,22 +50,19 @@ sub add_providers {
 
 sub has_decorator {
     my ($self, $name) = @_;
-    # TODO;
-    # This should check that this method
-    # is a `Decorator` and throw an exception
-    # otherwise.
-    # - SL
-    $self->{_role}->has_method( $name );
+
+    return unless $self->{_role}->has_method( $name );
+
+    my $method = $self->{_role}->get_method( $name );
+    return 1 if $method->origin_stash eq 'decorators::providers::for_providers';
+    return 1 if $method->has_code_attributes('Decorator');
+    return;
 }
 
 sub get_decorator {
     my ($self, $name) = @_;
-    # TODO;
-    # This should check that this method
-    # is a `Decorator` and throw an exception
-    # otherwise.
-    # - SL
-    $self->{_role}->get_method( $name );
+    return unless $self->has_decorator( $name );
+    return $self->{_role}->get_method( $name );
 }
 
 1;
