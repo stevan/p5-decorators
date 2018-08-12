@@ -56,32 +56,10 @@ sub import_into {
     # load the providers, and then ...
     Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
 
-    use Data::Dumper;
+    my $trait_role = MOPx::Decorators->new( namespace => $package );
+    $trait_role->add_providers( @providers );
 
-    # TODO:
-    # catch any expections from this, tell them
-    # what context we are in, then re-throw the
-    # expection.
-    # - SL
-    eval {
-        my $trait_role = MOPx::Decorators->new( namespace => $package );
-        $trait_role->add_providers( @providers );
-        1;
-    } or do {
-        die $@;
-    };
-
-    #warn Dumper {
-    #    FROM       => __PACKAGE__,
-    #    package    => $package,
-    #    providers  => \@providers,
-    #    decorators => [
-    #        map $_->fully_qualified_name, map MOP::Role->new( $_ )->methods, @providers
-    #    ],
-    #    imported   => [
-    #        map $_->name, MOP::Role->new( $package.'::__DECORATORS__' )->methods
-    #    ],
-    #};
+    return;
 }
 
 1;
@@ -90,13 +68,8 @@ __END__
 
 =pod
 
-=head1 UNDER CONSTRUCTION
-
-This module is still heavily under construction and there is a high likielihood
-that the details will change, bear that in mind if you choose to use it.
-
 =head1 DESCRIPTION
 
-...
+... no user serviceable parts inside
 
 =cut
