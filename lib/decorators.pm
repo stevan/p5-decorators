@@ -64,27 +64,16 @@ sub import_into {
             my $method     = MOP::Method->new( $code ); # the actual CV that Perl is talking about ...
             my @attributes = map MOP::Method::Attribute->new( $_ ), @attrs; # inflate the attributes ...
 
-            # TODO:
-            # This needs an abstraction around it,
-            # my $decorators = decorators::for( $role );
             my $decorators = MOPx::Decorators->new( namespace => $role->name );
             # preparing the attrbutes returns the ones that are unhandled ...
             # my @unhandled = map $_->original, $decorators->filter_unhandled( @attributes );
             my @unhandled  = map $_->original, grep !$decorators->has_decorator( $_->name ), @attributes;
 
-            #use Data::Dumper;
-            #warn Dumper {
-            #    FROM       => __PACKAGE__,
-            #    package    => $pkg,
-            #    role       => [map $_->fully_qualified_name, MOP::Role->new( $role->name.'::__DECORATORS__' )->methods],
-            #    attributes => \@attributes,
-            #    unhandled  => \@unhandled,
-            #};
-
             # return the bad decorators as strings, as expected by attributes ...
             return @unhandled if @unhandled;
 
-            # This would:
+            # TODO:
+            # This should:
             #   fetch all the decorator objects, then sort them
             #   such that a CreateMethod is first, also check
             #   to make sure there is only one CreateMethod
