@@ -56,8 +56,9 @@ sub import_into {
     # load the providers, and then ...
     Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
 
-    my $trait_role = MOPx::Decorators->new( namespace => $package );
-    $trait_role->add_providers( @providers );
+    my $decorators = MOPx::Decorators->new( namespace => $package );
+    $decorators->set_providers( @providers );
+    $decorators->compose;
 
     return;
 }

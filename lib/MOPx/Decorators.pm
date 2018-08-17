@@ -36,14 +36,9 @@ sub get_providers {
     $self->{_role}->roles;
 }
 
-sub add_providers {
+sub set_providers {
     my ($self, @providers) = @_;
-
-    my @roles = $self->{_role}->roles;
-    $self->{_role}->set_roles( List::Util::uniq( @roles, @providers ) );
-
-    # Do we guard aginst this happening more than once? at runtime? does it matter?
-    MOP::Util::compose_roles( $self->{_role} );
+    $self->{_role}->set_roles( @providers );
 }
 
 # decorators ...
@@ -63,6 +58,24 @@ sub get_decorator {
     my ($self, $name) = @_;
     return unless $self->has_decorator( $name );
     return $self->{_role}->get_method( $name );
+}
+
+# composing
+
+sub has_been_composed {
+    my ($self) = @_;
+    my $is_composed = MOP::Util::get_glob_slot( $self->{_role}, 'COMPOSED', 'SCALAR' );
+    return 0 if not defined $is_composed;
+    return $$is_composed;
+}
+
+sub compose {
+    my ($self) = @_;
+    Carp::confess('This decorator object has already been composed')
+        if $self->has_been_composed;
+
+    MOP::Util::compose_roles( $self->{_role} );
+    MOP::Util::set_glob_slot( $self->{_role}, 'COMPOSED', \1 )
 }
 
 1;
