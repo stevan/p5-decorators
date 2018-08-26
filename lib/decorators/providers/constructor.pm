@@ -1,5 +1,5 @@
 package decorators::providers::constructor;
-# ABSTRACT: built in traits
+# ABSTRACT: A set of decorators to generate BUILDARG methods
 
 use strict;
 use warnings;

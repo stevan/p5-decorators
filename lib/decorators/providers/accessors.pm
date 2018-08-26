@@ -1,5 +1,5 @@
 package decorators::providers::accessors;
-# ABSTRACT: built in traits
+# ABSTRACT: A set of decorators to generate accessor methods
 
 use strict;
 use warnings;

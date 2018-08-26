@@ -10,8 +10,7 @@ our $AUTHORITY = 'cpan:STEVAN';
 use Carp         ();
 use Scalar::Util ();
 use MOP          (); # this is how we do most of our work
-
-use MOPx::Decorators;
+use Module::Runtime (); # decorator provider loading
 
 ## --------------------------------------------------------
 ## Importers
@@ -27,7 +26,7 @@ sub import {
 ## --------------------------------------------------------
 
 sub import_into {
-    my (undef, $package, @args) = @_;
+    my (undef, $package, @providers) = @_;
 
     Carp::confess('You must provide a valid package argument')
         unless $package;
@@ -64,25 +63,17 @@ sub import_into {
             my $method     = MOP::Method->new( $code ); # the actual CV that Perl is talking about ...
             my @attributes = map MOP::Method::Attribute->new( $_ ), @attrs; # inflate the attributes ...
 
-            my $decorators = MOPx::Decorators->new( namespace => $role->name );
+            my $decorators = _create_decorator_meta_object_for( $role->name );
             # preparing the attrbutes returns the ones that are unhandled ...
             # my @unhandled = map $_->original, $decorators->filter_unhandled( @attributes );
-            my @unhandled  = map $_->original, grep !$decorators->has_decorator( $_->name ), @attributes;
+            my @unhandled  = map $_->original, grep !_has_decorator( $decorators, $_->name ), @attributes;
 
             # return the bad decorators as strings, as expected by attributes ...
             return @unhandled if @unhandled;
 
-            # TODO:
-            # This should:
-            #   fetch all the decorator objects, then sort them
-            #   such that a CreateMethod is first, also check
-            #   to make sure there is only one CreateMethod
-            #   in the set.
-            # $decorators->process_attributes( @attributes );
-            #   and it would include the code below ...
-
+            # process the attributes ...
             foreach my $attribute ( @attributes ) {
-                my $d = $decorators->get_decorator( $attribute->name );
+                my $d = _get_decorator( $decorators, $attribute->name );
 
                 $d or die 'This should never happen, as we have already checked this above ^^';
 
@@ -92,7 +83,9 @@ sub import_into {
 
                 if ( $d->has_code_attributes('CreateMethod') ) {
                     $method->is_required
-                        or die 'The method ('.$method->name.') must be bodyless for a `CreateMethod` decorator ('.$d->name.') to be applied to it';
+                        or die 'The method ('.$method->name.') must be bodyless for a `CreateMethod` decorator ('.$d->name.') '
+                              .'to be applied to it, please check the order of your decorators, `CreateMethod` decorators '
+                              .'should usually be applied early in the list when possible.';
                 }
 
                 $d->body->( $role, $method, @{ $attribute->args || [] } );
@@ -112,11 +105,60 @@ sub import_into {
         }
     );
 
-    if ( @args ) {
-        require decorators::from;
-        decorators::from->import_into( $package, @args )
+    if ( @providers ) {
+        # so we can use lowercase attributes ...
+        warnings->unimport('reserved')
+            if grep /^:/, @providers;
+
+        # expand any tags, they should match
+        # the provider names available in the
+        # decorators::providers::* namespace
+        @providers = map /^\:/ ? 'decorators::providers:'.$_ : $_, @providers;
+
+        # load the providers, and then ...
+        Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
+
+        _set_decorator_providers(
+            _create_decorator_meta_object_for( $package ),
+            @providers
+        );
     }
+
+    return;
 }
+
+## methods to deal with the internals
+
+sub _create_decorator_meta_object_for {
+    my ($namespace) = @_;
+    return MOP::Role->new( $namespace.'::__DECORATORS__' );
+}
+
+sub _set_decorator_providers {
+    my ($decorators, @providers) = @_;
+    $decorators->set_roles( @providers );
+    MOP::Util::compose_roles( $decorators );
+}
+
+# decorators ...
+
+sub _has_decorator {
+    my ($decorators, $name) = @_;
+
+    return unless $decorators->has_method( $name );
+
+    my $method = $decorators->get_method( $name );
+    return 1 if $method->origin_stash eq 'decorators::providers::for_providers';
+    return 1 if $method->has_code_attributes('Decorator');
+    return;
+}
+
+sub _get_decorator {
+    my ($decorators, $name) = @_;
+    return unless _has_decorator( $decorators, $name );
+    return $decorators->get_method( $name );
+}
+
 
 1;
 
