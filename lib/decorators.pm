@@ -7,9 +7,9 @@ use warnings;
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
-use Carp         ();
-use Scalar::Util ();
-use MOP          (); # this is how we do most of our work
+use Carp            ();
+use Scalar::Util    ();
+use MOP             (); # this is how we do most of our work
 use Module::Runtime (); # decorator provider loading
 
 ## --------------------------------------------------------
@@ -140,7 +140,7 @@ sub _set_decorator_providers {
     MOP::Util::compose_roles( $decorators );
 }
 
-# decorators ...
+# methods to deal with locating decorators
 
 sub _has_decorator {
     my ($decorators, $name) = @_;
@@ -158,7 +158,6 @@ sub _get_decorator {
     return unless _has_decorator( $decorators, $name );
     return $decorators->get_method( $name );
 }
-
 
 1;
 
