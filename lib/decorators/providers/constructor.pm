@@ -216,4 +216,6 @@ all, then simply do this.
 And the constructor will throw an exception if any arguments at
 all are passed in.
 
+=back
+
 =cut
