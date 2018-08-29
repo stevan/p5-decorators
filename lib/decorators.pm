@@ -226,8 +226,8 @@ arguments passed to the decorator, they are also passed along.
 For the moment I am going to require 5.14.4 because of the following quote
 by Zefram in the L<Sub::WhenBodied> documentation:
 
-  Prior to Perl 5.15.4, attribute handlers are executed before the body
-  is attached, so see it in that intermediate state. (From Perl 5.15.4
+  Prior to Perl 5.14.4, attribute handlers are executed before the body
+  is attached, so see it in that intermediate state. (From Perl 5.14.4
   onwards, attribute handlers are executed after the body is attached.)
   It is otherwise unusual to see the subroutine in that intermediate
   state.
