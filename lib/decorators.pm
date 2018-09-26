@@ -106,22 +106,45 @@ sub import_into {
     );
 
     if ( @providers ) {
-        # so we can use lowercase attributes ...
-        warnings->unimport('reserved')
-            if grep /^:/, @providers;
 
-        # expand any tags, they should match
-        # the provider names available in the
-        # decorators::providers::* namespace
-        @providers = map /^\:/ ? 'decorators::providers:'.$_ : $_, @providers;
+        # if it is provider-less ...
+        if ( not( ref $providers[0] ) && ref $providers[1] eq 'CODE' ) {
 
-        # load the providers, and then ...
-        Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
+            my %decorators = @providers;
 
-        _set_decorator_providers(
-            _create_decorator_meta_object_for( $package ),
-            @providers
-        );
+            my $meta = _create_decorator_meta_object_for( $package );
+
+            # add the :for_providers set to the role
+            # because we will need to use the `Decorator`
+            # decorator
+            import_into( undef, $meta->name, ':for_providers' );
+
+            foreach my $name ( keys %decorators ) {
+                my $decorator = $decorators{ $name };
+                $meta->add_method( $name, $decorator );
+                # now we need to manually add the
+                # Decorator to the $decorator
+                $meta->name->MODIFY_CODE_ATTRIBUTES( $decorator, 'Decorator' );
+            }
+        }
+        else {
+            # so we can use lowercase attributes ...
+            warnings->unimport('reserved')
+                if grep /^:/, @providers;
+
+            # expand any tags, they should match
+            # the provider names available in the
+            # decorators::providers::* namespace
+            @providers = map /^\:/ ? 'decorators::providers:'.$_ : $_, @providers;
+
+            # load the providers, and then ...
+            Module::Runtime::use_package_optimistically( $_ ) foreach @providers;
+
+            _set_decorator_providers(
+                _create_decorator_meta_object_for( $package ),
+                @providers
+            );
+        }
     }
 
     return;
