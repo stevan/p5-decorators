@@ -29,7 +29,7 @@ sub strict : Decorator : CreateMethod {
     my $class_name  = $meta->name;
     my $method_name = $method->name;
 
-    Carp::confess('The `strict` trait can only be applied to BUILDARGS')
+    Carp::confess('The `strict` decorator can only be applied to BUILDARGS')
         if $method_name ne 'BUILDARGS';
 
     if ( %signature ) {
@@ -174,7 +174,7 @@ __END__
 
 =item C<< strict( arg_key => slot_name, ... ) >>
 
-This is a trait that is exclusively applied to the C<BUILDARGS>
+This is a decorator that is exclusively applied to the C<BUILDARGS>
 method. This is a means for generating a strict interface for the
 C<BUILDARGS> method that will map a set of constructor parameters
 to a set of given slots. This is useful for maintaining encapsulation
