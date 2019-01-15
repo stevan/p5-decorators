@@ -81,7 +81,7 @@ sub import_into {
                 # so, we no-op and go to the next one
                 next if $d->has_code_attributes('TagMethod');
 
-                if ( $d->has_code_attributes('CreateMethod') ) {
+                if ( $d->has_code_attributes('CreateMethod') && not $d->has_code_attributes('WrapMethod') ) {
                     $method->is_required
                         or die 'The method ('.$method->name.') must be bodyless for a `CreateMethod` decorator ('.$d->name.') '
                               .'to be applied to it, please check the order of your decorators, `CreateMethod` decorators '
