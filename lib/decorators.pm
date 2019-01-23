@@ -34,6 +34,8 @@ sub import_into {
     Carp::confess('The package argument cannot be a reference or blessed object')
         if ref $package;
 
+    #warn "Hello setting up => $package";
+
     # convert this into a metaobject
     my $meta = MOP::Role->new( $package );
 
@@ -43,6 +45,8 @@ sub import_into {
     Carp::confess('Cannot install decorator collectors, FETCH_CODE_ATTRIBUTES method already exists')
         if $meta->has_method('FETCH_CODE_ATTRIBUTES') || $meta->has_method_alias('FETCH_CODE_ATTRIBUTES');
 
+
+    #warn "installing collectors for => $package";
     # now install the collectors ...
 
     my %accepted; # shared data between the collectors ...
@@ -62,6 +66,9 @@ sub import_into {
             my $role       = MOP::Role->new( $pkg );    # the actual Package that Perl is talking about ...
             my $method     = MOP::Method->new( $code ); # the actual CV that Perl is talking about ...
             my @attributes = map MOP::Method::Attribute->new( $_ ), @attrs; # inflate the attributes ...
+
+            #use Data::Dumper;
+            #warn Dumper [ map { name => $_->name, args => $_->args }, @attributes ];
 
             my $decorators = _create_decorator_meta_object_for( $role->name );
             # preparing the attrbutes returns the ones that are unhandled ...

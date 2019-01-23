@@ -12,6 +12,38 @@ use MOP::Util ();
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
+
+our %ASSERTIONS; BEGIN {
+    %ASSERTIONS = (
+        Str => sub { $_[0]->{ $_[1] } // die 'The value in `'.$_[1].'` must be a string (defined)' }
+    );
+}
+
+sub assert : Decorator : CreateMethod : WrapMethod {
+    my ( $meta, $method, %assertions ) = @_;
+
+    my $class_name  = $meta->name;
+    my $method_name = $method->name;
+
+    Carp::confess('The `assert` decorator can only be applied to BUILD')
+        if $method_name ne 'BUILD'; 
+    
+    my $body;
+    $body = $method->body unless $method->is_required;
+
+    $meta->add_method('BUILD' => sub {
+        my ($self) = @_;
+
+        foreach my $slot_name ( keys %assertions ) {
+            $ASSERTIONS{ $assertions{ $slot_name } }->( $self, $slot_name );
+        }
+
+        $body->( @_ ) if $body;
+
+        return;
+    });
+}
+
 sub strict : Decorator : CreateMethod {
     my ( $meta, $method, %signature ) = @_;
 
@@ -147,6 +179,7 @@ sub strict : Decorator : CreateMethod {
         });
     }
 }
+
 
 1;
 
