@@ -24,7 +24,7 @@ This test
 
     our %HAS; BEGIN { %HAS = ( foo => sub { 'foo' } ) }
 
-    sub BUILD : assert( foo => Str, bar => Int );    
+    sub BUILD : assert( foo => Str );    
 
     # sub BUILD : assert(
     #     operation            => where { Graph::QL::Core::OperationKind->is_operation_kind( $_ ) },

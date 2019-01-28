@@ -15,7 +15,8 @@ our $AUTHORITY = 'cpan:STEVAN';
 
 our %ASSERTIONS; BEGIN {
     %ASSERTIONS = (
-        Str => sub { $_[0]->{ $_[1] } // die 'The value in `'.$_[1].'` must be a string (defined)' }
+        Str => sub { $_[0]->{ $_[1] } // die 'The value in `'.$_[1].'` must be a string (defined)' },
+        Int => sub { $_[0]->{ $_[1] } =~ /^\d+$/ || die 'The value in `'.$_[1].'` must be an int' },
     );
 }
 
